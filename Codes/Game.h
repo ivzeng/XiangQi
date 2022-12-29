@@ -5,7 +5,6 @@
 #include <utility>
 #include <vector>
 
-
 class Player;
 class Piece;
 class Move;
@@ -17,6 +16,7 @@ class Board;
 
 class Game{
     int round;
+    std::unique_ptr<Piece> pieces [2][16];
     std::unique_ptr<Board> board;
     std::unique_ptr<Player> players [2];
     std::vector<Move> moves;
@@ -24,7 +24,9 @@ class Game{
 
     public:
     Game();
-    void init(char * playerTypes);
+    int init(int * playerTypes);
+    bool end();
+    int process();
 
 };
 
