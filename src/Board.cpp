@@ -11,6 +11,10 @@ int Board::Init() {
     return init();
 }
 
+void Board::Info(string & in) {
+    info(in);
+}
+
 
 
 //  XQBoard  //
@@ -86,6 +90,33 @@ XQPiece * XQBoard::get(int x, int y) const {
 
 XQPiece * XQBoard::get(const pair<int, int> & pos) const {
     return get(pos.first, pos.second);
+}
+
+int XQBoard::width() {
+    return 9;
+}
+
+int XQBoard::height() {
+    return 10;
+}
+
+void XQBoard::info(string & in) {
+    int w = width();
+    int h = height();
+    in.reserve((2*w+3)*(h+1));
+    for (int y = 0; y < h; y += 1) {
+        in += to_string(y+1);
+        in += ' ';
+        for (int x = 0; x < w; x += 1) {
+            in += board[y][x] ? board[y][x]->Rep() : '-';
+            in += ' ';
+        }
+        in += '\n';
+    }
+    for (int x = 0; x < w; x += 1) {
+        in += to_string(x+1);
+        in += ' ';
+    }
 }
 
 

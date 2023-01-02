@@ -12,7 +12,7 @@ class Interface {
     protected:
     int state;         // 0: in-game, 1: main menu ...
     std::unique_ptr<BoardGame> game;
-    std::vector<std::unique_ptr<Player>> players;
+    
     virtual int proc() = 0;
 
     public:

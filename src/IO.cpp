@@ -50,32 +50,8 @@ int IO_Std::readPT(istream & in, const vector<string> & cmd){
 }
 
 
-void IO_Std::print(std::ostream & out, const Game & game) {
-    out << game;
-}
-
-
-ostream & operator<<(ostream & out, const Item & item){
-    out << item.Rep();
-    return out;
-}
-
-
-ostream & operator<<(ostream & out, const Board & board){
-    for (int y = 9; y >= 0; y -= 1) {
-        out << y << ' ';
-        for (int x = 0; x < 9; x += 1) {
-            out << board.get(x, y) ? board.get(x, y)->rep() : '-'  << ' ';
-        }
-        out << endl;
-    }
-    out << "  ";
-    for (int x = 0; x < 9; x += 1) {
-        out << char(x + 'a') << ' ';
-    }
-    return out;
-}
-
-ostream & operator<<(ostream & out, const Game & game) {
-    return out;
+void IO_Std::show(std::ostream & out, const BoardGame & game, int details) {
+    string in{};
+    game.Info(in, details);
+    out << in;
 }

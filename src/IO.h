@@ -5,42 +5,44 @@
 #include <string>
 #include <vector>
 
-class Game;
+class BoardGame;
 class Board;
-class Piece;
+class Item;
 
 //    IO class    //
 // managing input / output
 class IO {
 
+    virtual int get(const std::vector<std::string> & validCmds); 
     public:
     IO();
+    int Get(const std::vector<std::string> & validCmds);
+
+    virtual void cmdInstruction(const std::vector<std::string> & cmds) = 0;
+    virtual void show(const BoardGame & game, int details = 1) = 0;
+    virtual void show(const std::string & s) = 0;
+
+    // printing Messages/Instruction
+    void CmdInstruction(const std::vector<std::string> & cmds);
+
+    // Printing structure
+    void Show(const BoardGame & game, int details = 1);
+    void Show(const std::string & s);
 };
 
 // std input / output
 class IO_Std : public IO {
+    std::istream & in;
+    std::ostream & out;
 
-    std::string getString(std::istream & in);
+
+    int get(const std::vector<std::string> & validCmds) override;
+
     public:
-    IO_Std();
+    IO_Std(std::istream & in, std::ostream & out);
     
-    // getting inputs
-    int readCmd(std::istream & in, const std::vector<std::string> & cmd);
-    int readCmd(std::istream & in, const std::vector<char> & cmd);
-    int readPT(std::istream & in, const std::vector<std::string> & cmd);
-
-    // printing Messages/Instruction
-    void cmdInstruction(std::ostream & out);
-    void PTInstruction(std::ostream & out);
-
-    // Printing structure
-    void print(std::ostream & out, const Game & game);
 };
 
-// Printing structure
-std::ostream & operator<<(std::ostream & out, const Piece & piece);
-std::ostream & operator<<(std::ostream & out, const Board & board);
-std::ostream & operator<<(std::ostream & out, const Game & game);
 
 
 #endif

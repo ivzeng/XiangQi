@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <utility>
+#include <string>
 
 //      Chess Board class     //
 // records the position of each peice 
@@ -11,11 +12,14 @@ class Board {
 
     // sets/gets fields
     virtual int init() = 0;
+    virtual void info(std::string &) = 0;
 
     public:
     Board();
     virtual ~Board() = 0;
     int Init();
+    int Update(int round, std::vector<std::unique_ptr<Move>> moves);
+    void Info(std::string & in);        // print the board information
 };
 
 // XiangQi Board //
@@ -35,7 +39,10 @@ class XQBoard : public Board {
     XQPiece * get(int x, int y) const;
     XQPiece * get(const std::pair<int,int> & pos) const;
 
-
+    // field information
+    int width();
+    int height();
+    void info(std::string & in);
     public:
     XQBoard();
 };

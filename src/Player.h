@@ -5,8 +5,9 @@
 #include <vector>
 
 class Board;
-class Piece;
+class Item;
 class Move;
+class IO;
 
 //      Player Class      //
 // makes/decides each move
@@ -15,7 +16,7 @@ class Player {
     protected:
     
     // functions //
-    virtual Move decide(const std::vector<Move> & moves) = 0;
+    virtual int decide(const std::vector<Move> & moves, Board * board) = 0;
 
     public:
     // constructor / destructor
@@ -23,14 +24,14 @@ class Player {
     virtual ~Player() = 0;
 
     // processing
-    Move decideMove(const std::vector<Move> & moves);
+    int Decide(const std::vector<Move> & moves, Board * board);
 };
 
 class Human : public Player {
-
+    std::unique_ptr<IO> io;
     // function
     public:
-    Move decide(const std::vector<Move> & moves) override;
+    int decide(const std::vector<Move> & moves, Board * board) override;
 
 };
 
@@ -38,14 +39,14 @@ class Computer0 : public Player {
     
     // derived functions
     public:
-    Move decide(const std::vector<Move> & moves) override;
+    int decide(const std::vector<Move> & moves, Board * board) override;
 };
 
 class Computer1 : public Player {
 
     // derived functions
     public:
-    Move decide(const std::vector<Move> & moves) override;
+    int decide(const std::vector<Move> & moves, Board * board) override;
 };
 
 std::unique_ptr<Player> makePlayer(int type);
