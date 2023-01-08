@@ -1,4 +1,4 @@
-#include "Piece.h"
+#include "Item.h"
 #include "helpers.h"
 
 using namespace std;
@@ -17,7 +17,9 @@ char Item::Rep() const {
 
 //  XiangQi Pieces  //
 
-XQPiece::XQPiece(int colour) : Item{}, status{-1}, colour{colour}, pos{-1,-1} {}
+XQPiece::XQPiece(int colour) : Item{}, status{0}, colour{colour}, pos{-1,-1} {}
+
+XQPiece::~XQPiece() {}
 
 Jiang::Jiang(int colour) : XQPiece{colour} {}
 
@@ -35,25 +37,25 @@ Bing::Bing(int colour) : XQPiece{colour} {}
 
 
 void XQPiece::Init(int x, int y) {
-    setPos(x, y);
-    setStatus();
+    SetPos(x, y);
+    SetStatus();
 }
 
 void XQPiece::Init(const pair<int,int> & pos) {
     Init(pos.first, pos.second);
 }
 
-void XQPiece::setStatus(int stat) {
+void XQPiece::SetStatus(int stat) {
     status = stat;
 }
 
-void XQPiece::setPos(int x, int y){
+void XQPiece::SetPos(int x, int y){
     pos.first = x;
     pos.second = y;
 }
 
-void XQPiece::setPos(const pair<int,int> & pos) {
-    setPos(pos.first, pos.second);
+void XQPiece::SetPos(const pair<int,int> & pos) {
+    SetPos(pos.first, pos.second);
 }
 
 

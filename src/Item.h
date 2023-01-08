@@ -34,9 +34,7 @@ class XQPiece : public Item {
     std::pair<int,int> pos;
 
     // functions
-    void setStatus(int stat = 1);
-    void setPos(int x, int y);
-    void setPos(const std::pair<int,int> & pos);
+    
     
     public:
 
@@ -44,6 +42,10 @@ class XQPiece : public Item {
     virtual ~XQPiece() = 0;
     void Init(const std::pair<int,int> & pos);
     void Init(int x, int y);
+
+    void SetStatus(int stat = 1);
+    void SetPos(int x, int y);
+    void SetPos(const std::pair<int,int> & pos);
 };
 
 class Jiang : public XQPiece {

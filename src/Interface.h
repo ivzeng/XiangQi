@@ -10,10 +10,10 @@ class Player;
 
 class Interface {
     protected:
-    int state;         // 0: in-game, 1: main menu ...
     std::unique_ptr<BoardGame> game;
-    
-    virtual int proc() = 0;
+
+    virtual void init();
+    virtual int handleEvents() = 0;
 
     public:
     Interface(char type);
@@ -21,13 +21,14 @@ class Interface {
     int Proc();
 };
 
-class Interface_Std : public Interface {
-    std::unique_ptr<IO_Std> io;
-    int proc() override;
+
+// std interface  //
+class CInterface : public Interface {
+    std::unique_ptr<IO> io;
+    int handleEvents() override;
 
     public:
-    Interface_Std(char type);
+    CInterface(char type);
 };
-
 
 #endif

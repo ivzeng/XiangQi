@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+class BoardGame;
 class Board;
 class Item;
 class Move;
@@ -16,37 +17,58 @@ class Player {
     protected:
     
     // functions //
-    virtual int decide(const std::vector<Move> & moves, Board * board) = 0;
+    // makes a move based on cmd
+    virtual Move * decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round) = 0;
+
+    // finds a good move with a number [depth] of simulation rounds
+    virtual Move * smartMove(std::vector<std::unique_ptr<Move>> & moves, Board & board, int round, int depth);
+    virtual std::string rep() = 0; 
 
     public:
     // constructor / destructor
     Player();
     virtual ~Player() = 0;
 
+    // id
+    std::string Rep();
     // processing
-    int Decide(const std::vector<Move> & moves, Board * board);
+    Move * Decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round);
 };
 
 class Human : public Player {
-    std::unique_ptr<IO> io;
     // function
     public:
-    int decide(const std::vector<Move> & moves, Board * board) override;
+    Human();
+    std::string rep() override;
+    Move * decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round) override;
 
 };
 
-class Computer0 : public Player {
+class Computer : public Player {
     
     // derived functions
     public:
-    int decide(const std::vector<Move> & moves, Board * board) override;
+    Computer();
+    virtual ~Computer() = 0;
+
 };
 
-class Computer1 : public Player {
+class Computer0 : public Computer {
 
     // derived functions
     public:
-    int decide(const std::vector<Move> & moves, Board * board) override;
+    Computer0();
+    std::string rep() override;
+    Move * decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round) override;
+};
+
+class Computer1 : public Computer {
+
+    // derived functions
+    public:
+    Computer1();
+    std::string rep() override;
+    Move * decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round) override;
 };
 
 std::unique_ptr<Player> makePlayer(int type);

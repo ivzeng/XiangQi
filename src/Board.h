@@ -3,22 +3,25 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
 #include <string>
 
 //      Chess Board class     //
 // records the position of each peice 
 
-class Board {
+class Move;
 
+class Board {
     // sets/gets fields
-    virtual int init() = 0;
+    virtual void reset() = 0;
+    virtual void getMoves(int round, std::vector<std::unique_ptr<Move>> & moves) = 0;
     virtual void info(std::string &) = 0;
 
     public:
     Board();
     virtual ~Board() = 0;
-    int Init();
-    int Update(int round, std::vector<std::unique_ptr<Move>> moves);
+    void Reset();
+    void GetMoves(int round, std::vector<std::unique_ptr<Move>> & moves);
     void Info(std::string & in);        // print the board information
 };
 
@@ -32,17 +35,20 @@ class XQBoard : public Board {
 
 
     // sets/gets fields
-    int init() override;
-    void initP(int x, int y, XQPiece * p);
+    void reset() override;
+    void getMoves(int round, std::vector<std::unique_ptr<Move>> & moves) override;
+    void info(std::string & in);
+    void setPiece(int x, int y, XQPiece * p);
     void set(int x, int y, XQPiece * piece);
     void set(const std::pair<int,int> & pos, XQPiece * piece);
-    XQPiece * get(int x, int y) const;
-    XQPiece * get(const std::pair<int,int> & pos) const;
+    const XQPiece & get(int x, int y) const;
+    const XQPiece & get(const std::pair<int,int> & pos) const;
 
     // field information
     int width();
     int height();
-    void info(std::string & in);
+    int pMoveIdx(int round);
+
     public:
     XQBoard();
 };

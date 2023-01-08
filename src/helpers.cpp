@@ -22,6 +22,6 @@ void lowerCase(char & c) {
 }
 void lowerCase(std::string & s){
     for (char & c : s) {
-        upperCase(c);
+        lowerCase(c);
     }
 }

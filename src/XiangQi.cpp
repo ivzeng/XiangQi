@@ -5,8 +5,7 @@
 using namespace std;
 
 int main () {
-    Interface_Std gmi {'x'};
+    CInterface gmi {'x'};
     gmi.Proc();
     return 1;
-
 }

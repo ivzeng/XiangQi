@@ -1,57 +1,34 @@
 #include "IO.h"
-#include "BoardGame.h"
-#include "Board.h"
-#include "Piece.h"
 #include "helpers.h"
 
 using namespace std;
 
-IO::IO () {}
+IO::IO() {}
 
-IO_Std::IO_Std() : IO{} {}
+void IO::Show(const string & m) {
+    show(m);
+}
 
-string IO_Std::getString(istream & in) {
-    string s = "";
+int IO::Read(string & s) {
+    return read(s);
+}
+
+
+
+
+
+//  IO_Std  //
+CIO::CIO(istream & in, ostream & out) : IO{}, in{in}, out{out} {}
+
+void CIO::show(const string & m) {
+    out << m;
+}
+
+int CIO::read(string & s) {
+    if (in.eof()) {
+        return 0;
+    }
     in >> s;
-    return s;
-}
-
-int IO_Std::readCmd(istream & in, const vector<string> & cmd) {
-    string inCmd{getString(in)};
-    lowerCase(inCmd);
-    for (int i = cmd.size()-1; i >= 0; i -= 1) {
-        if (inCmd == cmd[i]) return i;
-    }
-    return -1;
-}
-
-int IO_Std::readCmd(istream & in, const vector<char> & cmd) {
-    char inCmd{getString(in)[0]};
-    lowerCase(inCmd);
-    for (int i = cmd.size()-1; i >= 0; i -= 1) {
-        if (inCmd == cmd[i]) return i;
-    }
-    return -1;
-}
-
-int IO_Std::readPT(istream & in, const vector<string> & cmd){
-    string inCmd {getString(in)};
-    char type {inCmd[0]};
-    char level {inCmd[inCmd.size()-1]};
-    lowerCase(type);
-    inCmd = "" + type;
-    if ('0' <= level && level <= cmd[cmd.size()-1][1]) {
-        inCmd += level;
-    }
-    for (int i = cmd.size()-1; i >= 0; i -= 1) {
-        if (inCmd == cmd[i]) return i;
-    }
-    return -1;
-}
-
-
-void IO_Std::show(std::ostream & out, const BoardGame & game, int details) {
-    string in{};
-    game.Info(in, details);
-    out << in;
+    lowerCase(s);
+    return 1;
 }

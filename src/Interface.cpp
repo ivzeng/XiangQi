@@ -1,50 +1,46 @@
 #include "Interface.h"
 #include "BoardGame.h"
 #include "IO.h"
+#include "State.h"
 
 
 using namespace std;
 
-Interface::Interface(char type) : state{1}, game{makeBoardGame(type)}  { }
+Interface::Interface(char type) : game{MakeBoardGame(type)}  {
+    init();
+}
 
 Interface::~Interface() {}
 
 
+
 int Interface::Proc() {
-    return proc();
+    return handleEvents();
 }
 
+void Interface::init() {}
 
-//  Interface_Std  //
-Interface_Std::Interface_Std(char type) : Interface{type}, io{make_unique<IO_Std>(cin, cout)} {}
 
-int Interface_Std::proc() {
-    if (! game) {
-        return -1;
-    }
-    if (game->Init() <= 0) {
-        return -1;
-    }
-    while (!game->Stopped()) {
-        const vector<string> & cmds{game->GetCmds()};
+//  CInterface  //
+CInterface::CInterface(char type) : Interface{type}, io{make_unique<CIO>(cin, cout)} {
+}
 
-        // print instructions
-        switch (game->GetState()) {
+int CInterface::handleEvents() {
+    while (!game->Exited()) {
+        string msg {};
+        string cmd {};
 
-        default:
-            break;
+        game->UpdateRMsg(msg);
+        io->Show(msg);
+        msg.clear();
+        if (! io->Read(cmd)) {
+            io->Show("Stopped.");
+            return 0;
         }
-        switch (game->Proc(io->Get(cmds)))
-        {
-        case 0:
-            /* code */
-            break;
-        
-        default:
-            break;
-        }
-        return -2;
+        game->Proc(cmd, msg);
+        io->Show(msg);
     }
+    return 1;
 }
 
 
