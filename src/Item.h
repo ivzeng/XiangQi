@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <vector>
+#include <memory>
 
 class Move;
 class Board;
@@ -13,6 +14,7 @@ class Item {
 
     virtual int val() const = 0;    // gets the value of the Piece
     virtual char rep() const = 0;   // gets the charactor representation
+    virtual bool valid() const = 0;  // determine if an item is valid
 
     public:
     Item();
@@ -20,6 +22,7 @@ class Item {
 
     int Val() const;
     char Rep() const;
+    bool Valid() const;
 
 };
 
@@ -29,77 +32,28 @@ class Item {
 //   Jiang | Shi | Ju | Pao | Ma | Xiang | Bing
 class XQPiece : public Item {
     protected:
+    int type;
     int status;
     int colour;
     std::pair<int,int> pos;
 
     // functions
-    
-    
+    char rep() const override;
+    int val() const override;
+    bool valid() const override;
+    void setType(int type);
+    void setCol(int col);
     public:
 
-    XQPiece(int colour);
-    virtual ~XQPiece() = 0;
-    void Init(const std::pair<int,int> & pos);
-    void Init(int x, int y);
+    XQPiece();
+    void Init(int type, int colour, const std::pair<int,int> & pos);
+    void Init(int type, int colour, int x, int y);
 
+    int Type() const;
+    const std::pair<int, int> & GetPos() const;
+    int GetCol() const;
     void SetStatus(int stat = 1);
     void SetPos(int x, int y);
     void SetPos(const std::pair<int,int> & pos);
 };
-
-class Jiang : public XQPiece {
-    public:
-    Jiang(int colour);
-    int val() const override;
-    char rep() const override;
-};
-
-class Shi : public XQPiece {
-    public:
-    Shi(int colour);
-    int val() const override;
-    char rep() const override;
-
-};
-
-class Ju : public XQPiece {
-    public:
-    Ju(int colour);
-    int val() const override;
-    char rep() const override;
-
-};
-
-class Pao : public XQPiece {
-    public:
-    Pao(int colour);
-    int val() const override;
-    char rep() const override;
-
-};
-
-class Xiang : public XQPiece {
-    public:
-    Xiang(int colour);
-    int val() const override;
-    char rep() const override;
-
-};
-
-class Ma : public XQPiece {
-    public:
-    Ma(int colour);
-    int val() const override;
-    char rep() const override;
-
-};
-
-class Bing : public XQPiece {
-    public:
-    Bing(int colour);
-    int val() const override;
-    char rep() const override;
-};
-
 #endif

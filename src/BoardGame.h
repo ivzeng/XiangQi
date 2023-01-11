@@ -11,8 +11,8 @@
 #define CMD_ToMain  1
 #define CMD_ToS     2
 #define CMD_ToPS    3
-#define CMD_ResetP  8
-#define CMD_ResetS  9
+#define CMD_ResetP  7
+#define CMD_ResetS  8
 #define CMD_ShowC   10
 #define CMD_ShowB   11
 #define CMD_ShowH   12
@@ -50,8 +50,9 @@ class BoardGame {
     virtual void start(std::string & fb);
     bool pSetted();
     virtual int updateMoves();
-    void movesRep(std::string & m, std::vector<std::unique_ptr<Move>> & moves);
-    virtual int undo();
+    void movesRep(std::string & m, const std::vector<std::unique_ptr<Move>> & moves) const;
+    virtual void doRound(Move * move);
+    virtual int undoRound();
     virtual int analyze() const;  // analyzes the winner
 
     virtual int gameRound() const;

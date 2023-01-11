@@ -21,7 +21,7 @@ class Player {
     virtual Move * decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round) = 0;
 
     // finds a good move with a number [depth] of simulation rounds
-    virtual Move * smartMove(std::vector<std::unique_ptr<Move>> & moves, Board & board, int round, int depth);
+    virtual Move * dfsMoveSearch(std::vector<std::unique_ptr<Move>> & moves, Board & board, int round, int depth);
     virtual std::string rep() = 0; 
 
     public:

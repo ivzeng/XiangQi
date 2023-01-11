@@ -1,4 +1,5 @@
 #include "Move.h"
+#include "Board.h"
 #include "Item.h"
 
 using namespace std;
@@ -15,8 +16,20 @@ void Move::Undo() {
     undo();
 }
 
+void Move::Set(Board * board) {
+    set(board);
+}
+
+void Move::RSet(Board * board) {
+    rSet(board);
+}
+
 string Move::Rep() {
     return rep();
+}
+
+unique_ptr<Move> Move::Copy () const {
+    return copy();
 }
 
 //   XQMove   //
@@ -40,7 +53,20 @@ void XQMove::undo() {
     }
 }
 
-string XQMove::rep() {
-    return "" + char(from.first+'a') + char(from.first+'0') + char(from.second+'a') + char(from.second+'0');
+void XQMove::set(Board * board) {
+    board->Set(from, nullptr);
+    board->Set(to, target);
 }
 
+void XQMove::rSet(Board * board) {
+    board->Set(to, captured);
+    board->Set(from, target);
+}
+
+string XQMove::rep() {
+    return string{char(from.first+'a'), char(from.second + '0'), char(to.first+'a'), char(to.second+'0')};
+}
+
+unique_ptr<Move> XQMove::copy() const {
+    return make_unique<XQMove>(*this);
+}

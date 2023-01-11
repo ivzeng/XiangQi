@@ -1,4 +1,6 @@
 #include "Item.h"
+#include "Board.h"
+#include "Move.h"
 #include "helpers.h"
 
 using namespace std;
@@ -15,34 +17,42 @@ char Item::Rep() const {
     return rep();
 }
 
+bool Item::Valid() const {
+    return valid();
+}
+
 //  XiangQi Pieces  //
 
-XQPiece::XQPiece(int colour) : Item{}, status{0}, colour{colour}, pos{-1,-1} {}
-
-XQPiece::~XQPiece() {}
-
-Jiang::Jiang(int colour) : XQPiece{colour} {}
-
-Shi::Shi(int colour) : XQPiece{colour} {}
-
-Ju::Ju(int colour) : XQPiece{colour} {}
-
-Pao::Pao(int colour) : XQPiece{colour} {}
-
-Ma::Ma(int colour) : XQPiece{colour} {}
-
-Xiang::Xiang(int colour) : XQPiece{colour} {}
-
-Bing::Bing(int colour) : XQPiece{colour} {}
+XQPiece::XQPiece() : Item{}, type{0}, status{0}, colour{-1}, pos{-1,-1} {}
 
 
-void XQPiece::Init(int x, int y) {
+void XQPiece::Init(int t, int col, int x, int y) {
+    setType(t);
+    setCol(col);
     SetPos(x, y);
     SetStatus();
 }
 
-void XQPiece::Init(const pair<int,int> & pos) {
-    Init(pos.first, pos.second);
+void XQPiece::Init(int t, int col, const pair<int,int> & pos) {
+    Init(t, col, pos.first, pos.second);
+}
+
+int XQPiece::Type() const {
+    return type;
+}
+const pair<int, int> & XQPiece::GetPos() const {
+    return pos;
+}
+int XQPiece::GetCol() const {
+    return colour;
+}
+
+void XQPiece::setType(int t) {
+    type = t;
+}
+
+void XQPiece::setCol(int col) {
+    colour = col;
 }
 
 void XQPiece::SetStatus(int stat) {
@@ -58,38 +68,67 @@ void XQPiece::SetPos(const pair<int,int> & pos) {
     SetPos(pos.first, pos.second);
 }
 
+char XQPiece::rep() const {
+    switch (type)
+    {
+    case 1:
+        return colour ? 'j' : 'J'; 
+        break;
+    case 2:
+        return colour ? 's' : 'S'; 
+        break;
+    case 3:
+        return colour ? 'g' : 'G'; 
+        break;
+    case 4:
+        return colour ? 'p' : 'P'; 
+        break;
+    case 5:
+        return colour ? 'm' : 'M'; 
+        break;
+    case 6:
+        return colour ? 'x' : 'X'; 
+        break;
+    case 7:
+        return colour ? 'b' : 'B'; 
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
 
+int XQPiece::val() const {
+    switch (type)
+    {
+    case 1:
+        return 200;
+        break;
+    case 2:
+        return 30;
+        break;
+    case 3:
+        return 120;
+        break;
+    case 4:
+        return 100;
+        break;
+    case 5:
+        return 80;
+        break;
+    case 6:
+        return 50;
+        break;
+    case 7:
+        return 20;
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
 
-int Jiang::val() const  { return 100; }
-
-int Shi::val() const    { return 20; }
-
-int Ju::val() const     { return 80; }
-
-int Pao::val() const    { return 60; }
-
-int Ma::val() const     { return 40; }
-
-int Xiang::val() const  { return 30; }
-
-int Bing::val() const   { return 10; }
-
-
-char Jiang::rep() const  { return colour ? 'j' : 'J'; }
-
-char Shi::rep() const    { return colour ? 's' : 'S'; }
-
-char Ju::rep() const     { return colour ? 'g' : 'G'; }
-
-char Pao::rep() const    { return colour ? 'p' : 'P'; }
-
-char Ma::rep() const     { return colour ? 'm' : 'M'; }
-
-char Xiang::rep() const  { return colour ? 'x' : 'X'; }
-
-char Bing::rep() const   { return colour ? 'b' : 'B'; }
-
-
-
-
+bool XQPiece::valid() const {
+    return status;
+}
 

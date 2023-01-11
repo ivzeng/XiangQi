@@ -17,7 +17,10 @@ Move * Player::Decide(const string & cmd, std::vector<std::unique_ptr<Move>> & m
     return decide(cmd, moves, board, round);
 }
 
-Move * Player::smartMove(vector<unique_ptr<Move>> & moves, Board & board, int round, int depth) {
+Move * Player::dfsMoveSearch(vector<unique_ptr<Move>> & moves, Board & board, int round, int depth) {
+    if (moves.size() == 0) {
+        return nullptr;
+    }
     return moves[0].get();
 }
 
@@ -30,7 +33,7 @@ std::string Human::rep() {
 
 Move * Human::decide(const string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round) {
     if (cmd == "hint") {
-        return smartMove(moves, board, round, 3);
+        return dfsMoveSearch(moves, board, round, 3);
     }
     for (auto & move : moves) {
         if (move->Rep() == cmd) {
@@ -52,8 +55,12 @@ string Computer0::rep() {
 }
 
 Move * Computer0::decide(const string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round) {
-    return moves[0].get();
+    if (cmd != "m" && cmd != "") {
+        return nullptr;
+    }
+    return dfsMoveSearch(moves, board, round, 0);
 }
+
 
 //  Computer 1  //
 Computer1::Computer1() : Computer{} {}
@@ -62,7 +69,10 @@ string Computer1::rep() {
 }
 
 Move * Computer1::decide(const string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board & board, int round) {
-    return moves[0].get();
+    if (cmd != "m" && cmd != "") {
+        return nullptr;
+    }
+    return dfsMoveSearch(moves, board, round, 0);
 }
 
 //  other functions   //
