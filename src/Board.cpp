@@ -211,25 +211,25 @@ void XQBoard::scan(vector<unique_ptr<Move>> & moves, const XQPiece & p) {
     switch (p.Type())
     {
     case 1:
-        //jScan(moves, p.GetPos(), p.GetCol());
+        jScan(moves, p.GetPos(), p.GetCol());
         break;
     case 2:
-        //sScan(moves, p.GetPos(), p.GetCol());
+        sScan(moves, p.GetPos(), p.GetCol());
         break;
     case 3:
-        //lScan(moves, p.GetPos(), p.GetCol());
+        lScan(moves, p.GetPos(), p.GetCol());
         break;
     case 4:
         lScan(moves, p.GetPos(), p.GetCol(), 1);
         break;
     case 5:
-        //mScan(moves, p.GetPos(), p.GetCol());
+        mScan(moves, p.GetPos(), p.GetCol());
         break;
     case 6:
-        //xScan(moves, p.GetPos(), p.GetCol());
+        xScan(moves, p.GetPos(), p.GetCol());
         break;
     case 7:
-        //bScan(moves, p.GetPos(), p.GetCol());
+        bScan(moves, p.GetPos(), p.GetCol());
         break;
     default:
         break;
@@ -345,7 +345,7 @@ void XQBoard::xScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<
 
 void XQBoard::bScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col) {
     int dir = 1-col*2;
-    if (pos.first + dir >= 0 && pos.second < height()) {
+    if (pos.first + dir >= 0 && pos.second + dir < height()) {
         insertMove(moves, pos, {pos.first, pos.second+dir}, col);
     }
     if (col != pos.second/5) {
