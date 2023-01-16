@@ -13,7 +13,6 @@ class Board;
 class Item {
 
     virtual int val() const = 0;    // gets the value of the Piece
-    virtual char rep() const = 0;   // gets the charactor representation
     virtual bool valid() const = 0;  // determine if an item is valid
 
     public:
@@ -21,7 +20,6 @@ class Item {
     virtual ~Item() = 0;
 
     int Val() const;
-    char Rep() const;
     bool Valid() const;
 
 };
@@ -38,7 +36,6 @@ class XQPiece : public Item {
     std::pair<int,int> pos;
 
     // functions
-    char rep() const override;
     int val() const override;
     bool valid() const override;
     void setType(int type);

@@ -1,6 +1,7 @@
 #include "Board.h"
 #include "Item.h"
 #include "Move.h"
+#include "Texts.h"
 #include <iostream>
 
 using namespace std;
@@ -17,8 +18,8 @@ void Board::Set(const std::pair<int, int> & pos, Item * p) {
     set(pos, p);
 }
 
-void Board::Info(string & in) {
-    info(in);
+void Board::Info(string & in, const Msg & msg) {
+    info(in, msg);
 }
 
 void Board::GetMoves(int round, vector<unique_ptr<Move>> & moves) {
@@ -71,23 +72,72 @@ void XQBoard::reset() {
 }
 
 
-void XQBoard::info(string & in) {
+void XQBoard::info(string & m, const Msg & msg) {
     int w = width();
     int h = height();
-    in.reserve((2*w+3)*(h+1));
-    for (int y = h-1; y >= 0; y -= 1) {
-        in += y+'0';
-        in += ' ';
+    int vg = msg.Get(MTYPE_Board, 0, 0).size();
+    const string & resetBG =msg.GetD(MTYPE_Board, 3);
+    const string & setBG = msg.GetD(MTYPE_Board, 2);
+    const string & setTxB = msg.GetD(MTYPE_Board, 1);
+    const string & setTxR = msg.GetD(MTYPE_Board, 0);
+    const string & hl = msg.Get(MTYPE_Board, 0, 1);
+
+    string spcBk = string(msg.Get(MTYPE_Board, 1, 0).size()/3 , ' ');
+    string spcSk = string(hl.size()/3, ' ') + spcBk;
+
+    for (int y = h-1;; y -= 1) {
+        m += y+'0';
+        m += ' ';
+        m += setBG;
+        m += setTxB;
         for (int x = 0; x < w; x += 1) {
-            in += board[y][x] ? board[y][x]->Rep() : '-';
-            in += ' ';
+            XQPiece * p = board[y][x];
+            if (p) {
+                if (p->GetCol() == 0) {
+                    m += setTxR;
+                    m += msg.Get(MTYPE_Board, 1, p->Type()-1);
+                    m += setTxB;
+                }
+                else {
+                    m += msg.Get(MTYPE_Board, 2, p->Type()-1);
+                }
+            }
+            else {
+                m += msg.Get(MTYPE_Board, 0, edgeType(x, y));
+            }
+            if (x != w-1) {
+                m += hl;
+            }
+            else {
+                m += spcBk;
+            }
         }
-        in += '\n';
+        m += resetBG;
+        m += '\n';
+        if (y == 0) {
+            break;
+        }
+        const string vl = y == 5 ? " " : msg.Get(MTYPE_Board, 0, 2);
+
+        for (int i = vg; i > 0; i -= 1) {
+            m += "  ";
+            m += setBG;
+            m += setTxB;
+            m += ' ';
+            m += vl;
+            for (int j = width()-1; j > 0; j -= 1) {
+                m += spcSk;
+                m += vl;
+            }
+            m += spcBk;
+            m += resetBG;
+            m += '\n';
+        }
     }
-    in += "  ";
+    m += spcSk;
     for (int x = 0; x < w; x += 1) {
-        in += char(x+'a');
-        in += ' ';
+        m += char(x+'a');
+        m += spcSk;
     }
 }
 
@@ -125,6 +175,28 @@ int XQBoard::pMoveIdx(int round) {
     return round%2;
 }
 
+int XQBoard::edgeType(int x, int y) {
+    const int h = height()-1;
+    const int w = width()-1;
+    if (x == 0) {
+        if (y == 0) { return 5; }
+        if (y == h) { return 3; }
+        return 7;
+    }
+    if (x == w) {
+        if (y == 0) { return 6; }
+        if (y == h) { return 4; }
+        return 8;
+    }
+    if (y == 0 || y == h/2+1) {
+        return 10;
+    }
+    if (y == h || y == h/2) {
+        return 9;
+    }
+    return 11;
+}
+
 
 void XQBoard::getMoves(int round, vector<unique_ptr<Move>> & moves)  {
     int col = pMoveIdx(round);
@@ -145,10 +217,10 @@ void XQBoard::scan(vector<unique_ptr<Move>> & moves, const XQPiece & p) {
         //sScan(moves, p.GetPos(), p.GetCol());
         break;
     case 3:
-        lScan(moves, p.GetPos(), p.GetCol());
+        //lScan(moves, p.GetPos(), p.GetCol());
         break;
     case 4:
-        //lScan(moves, p.GetPos(), p.GetCol(), 1);
+        lScan(moves, p.GetPos(), p.GetCol(), 1);
         break;
     case 5:
         //mScan(moves, p.GetPos(), p.GetCol());

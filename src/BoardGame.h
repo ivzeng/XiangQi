@@ -13,10 +13,11 @@
 #define CMD_ToPS    3
 #define CMD_ResetP  7
 #define CMD_ResetS  8
-#define CMD_ShowC   10
-#define CMD_ShowB   11
-#define CMD_ShowH   12
-#define CMD_ShowM   13
+#define CMD_SetL    9
+#define CMD_ShowC   15
+#define CMD_ShowB   16
+#define CMD_ShowH   17
+#define CMD_ShowM   18
 #define CMD_Undo    21
 #define CMD_Hint    22
 
@@ -26,6 +27,7 @@ class Player;
 class Move;
 class Board;
 class State;
+class Msg;
 
 //  BoardGame Class  //
 // owns the board;
@@ -42,6 +44,7 @@ class BoardGame {
     std::vector<std::unique_ptr<Player>> players;
     std::vector<int> scores;
     std::vector<std::string> playerType;
+    std::unique_ptr<Msg> msg;
 
     virtual void init();        // init player type
     virtual void resetPlayers();      // resets players 
@@ -79,6 +82,7 @@ class BoardGame {
 class XQBoard;
 class XiangQi : public BoardGame{
     
+    void init() override;
     int ePlayerCount() const override;
     public:
     XiangQi();

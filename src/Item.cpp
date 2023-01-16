@@ -13,9 +13,6 @@ int Item::Val() const {
     return val();
 }
 
-char Item::Rep() const {
-    return rep();
-}
 
 bool Item::Valid() const {
     return valid();
@@ -66,36 +63,6 @@ void XQPiece::SetPos(int x, int y){
 
 void XQPiece::SetPos(const pair<int,int> & pos) {
     SetPos(pos.first, pos.second);
-}
-
-char XQPiece::rep() const {
-    switch (type)
-    {
-    case 1:
-        return colour ? 'j' : 'J'; 
-        break;
-    case 2:
-        return colour ? 's' : 'S'; 
-        break;
-    case 3:
-        return colour ? 'g' : 'G'; 
-        break;
-    case 4:
-        return colour ? 'p' : 'P'; 
-        break;
-    case 5:
-        return colour ? 'm' : 'M'; 
-        break;
-    case 6:
-        return colour ? 'x' : 'X'; 
-        break;
-    case 7:
-        return colour ? 'b' : 'B'; 
-        break;
-    default:
-        break;
-    }
-    return 0;
 }
 
 int XQPiece::val() const {

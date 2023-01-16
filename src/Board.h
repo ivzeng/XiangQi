@@ -11,13 +11,14 @@
 
 class Move;
 class Item;
+class Msg;
 
 class Board {
     // sets/gets fields
     virtual void reset() = 0;
     virtual void set(const std::pair<int,int> & pos, Item * piece) = 0;
     virtual void getMoves(int round, std::vector<std::unique_ptr<Move>> & moves) = 0;
-    virtual void info(std::string &) = 0;
+    virtual void info(std::string & m, const Msg & msg) = 0;
 
     public:
     Board();
@@ -25,7 +26,7 @@ class Board {
     void Reset();
     void Set(const std::pair<int,int> & pos, Item * piece);
     void GetMoves(int round, std::vector<std::unique_ptr<Move>> & moves);
-    void Info(std::string & in);        // print the board information
+    void Info(std::string & m, const Msg & msg);        // print the board information
 };
 
 // XiangQi Board //
@@ -39,7 +40,7 @@ class XQBoard : public Board {
 
     // sets/gets fields
     void reset() override;
-    void info(std::string & in);
+    void info(std::string & m, const Msg & msg) override;
     void setPiece(int type, int col, int x, int y, XQPiece * p);
     void set(int x, int y, XQPiece * piece);
     void set(const std::pair<int,int> & pos, Item * piece) override;
@@ -50,6 +51,8 @@ class XQBoard : public Board {
     int width();
     int height();
     int pMoveIdx(int round);
+    
+    int edgeType(int x, int y);
 
     // move analysis
     void getMoves(int round, std::vector<std::unique_ptr<Move>> & moves) override;

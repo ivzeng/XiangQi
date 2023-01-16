@@ -11,11 +11,17 @@
 #define STATE_Setting   2
 #define STATE_PSetting  3
 #define STATE_Game      4
+#define STATE_Setting_1 5
+#define STATE_Setting_2 6
+#define STATE_Setting_3 7
+
+
+using CIMap = std::map<std::string, int>;
 
 class State {
     int curState;
-    std::vector<std::map<std::string, int>> cmds;
-    std::map<std::string, int> uCmds;       // universal commands
+    std::vector<CIMap> cis;
+    std::map<std::string, int> ucis;       // universal commands
 
 
     virtual void init();
@@ -34,5 +40,6 @@ class State_Default : public State {
     public:
     State_Default();
 };
+
 
 #endif

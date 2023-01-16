@@ -4,13 +4,12 @@
 #include "Move.h"
 #include "Item.h"
 #include "State.h"
+#include "Texts.h"
 #include <iostream>
 
 using namespace std;
 
-BoardGame::BoardGame() : state{nullptr}, round {0}, board{}, moves{}, hist{}, players{}, scores{}, playerType{}  {
-    init();
-}
+BoardGame::BoardGame() : state{nullptr}, round {0}, board{}, moves{}, hist{}, players{}, scores{}, playerType{}, msg{nullptr} {}
 
 BoardGame::~BoardGame() {}
 
@@ -51,6 +50,7 @@ int BoardGame::proc(const string & cmd, string & fb) {
     switch(state->ReadCmd(cmd)) {
     case CMD_End: // game ended
         state->SetState(STATE_End);
+        fb = msg->Get(MTYPE_Proc, CMD_End);
         return 0;
     case CMD_ToMain: // to main manu
         state->SetState(STATE_Main);
@@ -69,7 +69,10 @@ int BoardGame::proc(const string & cmd, string & fb) {
         return 1;
     case CMD_ResetP:    // resetting players
         players.clear();
-        fb = "Resetted players.\n";
+        fb = msg->Get(MTYPE_Proc, CMD_ResetP);
+        return 1;
+    case CMD_SetL:
+        msg->SetL();
         return 1;
     case CMD_ShowC:
         fb.reserve(200);
@@ -77,8 +80,8 @@ int BoardGame::proc(const string & cmd, string & fb) {
         fb += '\n';
         return 1;
     case CMD_ShowB:     // showing board
-        fb.reserve(300);
-        board->Info(fb);
+        fb.reserve(400);
+        board->Info(fb, *msg);
         fb += '\n';
         return 1;
     case CMD_ShowH:     // showing history
@@ -93,13 +96,13 @@ int BoardGame::proc(const string & cmd, string & fb) {
         return 1;
     case CMD_Undo:
         if (hist.size() == 0) {
-            fb = "You are at the beginning of the game.\n";
+            fb = msg->Get(MTYPE_Proc, CMD_Undo);
             return 0;
         }
         fb.reserve(20);
-        fb += "undoing ";
+        fb += msg->Get(MTYPE_Proc, CMD_Undo, 1);
         fb += hist.back()->Rep();
-        fb += "...\n";
+        fb += msg->Get(MTYPE_Proc, CMD_Undo, 2);
         undoRound();
         return 1;
     default:
@@ -116,12 +119,12 @@ int BoardGame::proc(const string & cmd, string & fb) {
                     return 1;
                 }
             }
-            fb = "Invalid command!\n";
+            fb = msg->GetD(MTYPE_Proc, 0);
             return -1;
         case STATE_Game:{
             Move * move = players[pMoveIdx()]->Decide(cmd, moves, *board, round);
             if (! move) {
-                fb = "Invalid command!\n";
+                fb = fb = msg->GetD(MTYPE_Proc, 0);
                 return -1;
             }
             doRound(move);
@@ -136,7 +139,7 @@ int BoardGame::proc(const string & cmd, string & fb) {
         }
         
         default:
-            fb = "Invalid command!\n";
+            fb = fb = msg->GetD(MTYPE_Proc, 0);
             return -1;
         }
     }
@@ -144,7 +147,7 @@ int BoardGame::proc(const string & cmd, string & fb) {
 
 void BoardGame::start(string & fb) {
     state->SetState(STATE_Game);
-    fb += "Game started.\nPlayers:";
+    fb += msg->Get(MTYPE_Proc, CMD_ToPS);
     for (auto & player : players) {
         fb += player->Rep();
         fb += ' ';
@@ -207,25 +210,26 @@ void BoardGame::updateRMsg(string & m) const {
     m.clear();
     switch (state->GetState()) {
     case STATE_Main:
-        m += "Main Menu:\n";
+        m += msg->Get(MTYPE_State, STATE_Main);
         break;
     case STATE_Setting:
-        m += "Setting:\n";
+        m += msg->Get(MTYPE_State, STATE_Setting);
         break;
     case STATE_PSetting:
         m.reserve(100);
-        m += "Setting player ";
-        m += to_string(players.size()+1);
-        m += ":\n";
+        m += msg->Get(MTYPE_State, STATE_PSetting);
+        m += msg->Get(MTYPE_Board, 3, players.size());
+        m += msg->Get(MTYPE_State, STATE_PSetting, 1);
         break;
     case STATE_Game:
         m.reserve(400);
-        board->Info(m);
-        m += "\nRound ";
+        board->Info(m, *msg);
+        m += msg->Get(MTYPE_State, STATE_Game, 0);
         m += to_string(gameRound() + 1);
-        m += ",\nPlayer ";
-        m += to_string(pMoveIdx() + 1);
-        m += " move:";
+        m += msg->Get(MTYPE_State, STATE_Game, 1);
+        m += msg->Get(MTYPE_Board, 3, pMoveIdx());
+        m += msg->Get(MTYPE_State, STATE_Game, 2);
+;
         break;
     default:
         break;
@@ -254,13 +258,19 @@ void BoardGame::updateCmd(string & m) const {
 
 //  XiangQi  //
 XiangQi::XiangQi() : BoardGame{} {
-    board = make_unique<XQBoard>();
+    init();
 }
 
 int XiangQi::ePlayerCount() const {
     return 2;
 }
 
+
+void XiangQi::init() {
+    BoardGame::init();
+    msg = make_unique<Msg_XQ>();
+    board = make_unique<XQBoard>();
+}
 
 // main constructor
 unique_ptr<BoardGame> MakeBoardGame(char type) {
