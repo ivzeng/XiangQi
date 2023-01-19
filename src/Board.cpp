@@ -27,6 +27,10 @@ void Board::GetMoves(int round, vector<unique_ptr<Move>> & moves) {
 } 
 
 
+int Board::PMoveIdx(int round) const {
+    return pMoveIdx(round);
+}
+
 
 //  XQBoard  //
 
@@ -50,23 +54,23 @@ void XQBoard::reset() {
     // initializes pieces and puts them into the board
     for (int i = 0; i <= 1; i += 1) {
         int y = 9*i;            // first row
-        setPiece(1, i, 4, y, pieces[i][0].get());
-        setPiece(2, i, 3, y, pieces[i][1].get());
-        setPiece(2, i, 5, y, pieces[i][2].get());
-        setPiece(3, i, 0, y, pieces[i][3].get());
-        setPiece(3, i, 8, y, pieces[i][4].get());
-        setPiece(5, i, 1, y, pieces[i][7].get());
-        setPiece(5, i, 7, y, pieces[i][8].get());
-        setPiece(6, i, 2, y, pieces[i][9].get());
-        setPiece(6, i, 6, y, pieces[i][10].get());
+        setPiece(XQPIECE_Jiang, i, 4, y, pieces[i][0].get());
+        setPiece(XQPIECE_Shi, i, 3, y, pieces[i][1].get());
+        setPiece(XQPIECE_Shi, i, 5, y, pieces[i][2].get());
+        setPiece(XQPIECE_Ju, i, 0, y, pieces[i][3].get());
+        setPiece(XQPIECE_Ju, i, 8, y, pieces[i][4].get());
+        setPiece(XQPIECE_Ma, i, 1, y, pieces[i][7].get());
+        setPiece(XQPIECE_Ma, i, 7, y, pieces[i][8].get());
+        setPiece(XQPIECE_Xiang, i, 2, y, pieces[i][9].get());
+        setPiece(XQPIECE_Xiang, i, 6, y, pieces[i][10].get());
         
         y = 2 + 5*i;            // thrid row
-        setPiece(4, i, 1, y, pieces[i][5].get());
-        setPiece(4, i, 7, y, pieces[i][6].get());
+        setPiece(XQPIECE_Pao, i, 1, y, pieces[i][5].get());
+        setPiece(XQPIECE_Pao, i, 7, y, pieces[i][6].get());
         
         y = 3 + 3*i;            // fourth row
         for (int x = 0; x <= 8; x += 2) {
-            setPiece(7 , i, x, y, pieces[i][11+x/2].get());
+            setPiece(XQPIECE_Bing , i, x, y, pieces[i][11+x/2].get());
         }
     }
 }
@@ -155,27 +159,27 @@ void XQBoard::set(const pair<int,int> & pos, Item * p) {
     set(pos.first, pos.second, xqp);
 }
 
-XQPiece * XQBoard::get(int x, int y) {
+XQPiece * XQBoard::get(int x, int y) const {
     return board[y][x];
 }
 
-XQPiece * XQBoard::get(const pair<int, int> & pos) {
+XQPiece * XQBoard::get(const pair<int, int> & pos) const {
     return get(pos.first, pos.second);
 }
 
-int XQBoard::width() {
+int XQBoard::width() const {
     return 9;
 }
 
-int XQBoard::height() {
+int XQBoard::height() const {
     return 10;
 }
 
-int XQBoard::pMoveIdx(int round) {
+int XQBoard::pMoveIdx(int round) const {
     return round%2;
 }
 
-int XQBoard::edgeType(int x, int y) {
+int XQBoard::edgeType(int x, int y) const {
     const int h = height()-1;
     const int w = width()-1;
     if (x == 0) {
@@ -210,25 +214,25 @@ void XQBoard::getMoves(int round, vector<unique_ptr<Move>> & moves)  {
 void XQBoard::scan(vector<unique_ptr<Move>> & moves, const XQPiece & p) {
     switch (p.Type())
     {
-    case 1:
+    case XQPIECE_Jiang:
         jScan(moves, p.GetPos(), p.GetCol());
         break;
-    case 2:
+    case XQPIECE_Shi:
         sScan(moves, p.GetPos(), p.GetCol());
         break;
-    case 3:
+    case XQPIECE_Ju:
         lScan(moves, p.GetPos(), p.GetCol());
         break;
-    case 4:
+    case XQPIECE_Pao:
         lScan(moves, p.GetPos(), p.GetCol(), 1);
         break;
-    case 5:
+    case XQPIECE_Ma:
         mScan(moves, p.GetPos(), p.GetCol());
         break;
-    case 6:
+    case XQPIECE_Xiang:
         xScan(moves, p.GetPos(), p.GetCol());
         break;
-    case 7:
+    case XQPIECE_Bing:
         bScan(moves, p.GetPos(), p.GetCol());
         break;
     default:
@@ -389,7 +393,70 @@ bool XQBoard::lInsertMove(vector<unique_ptr<Move>> & moves, const pair<int,int> 
         return true;
 }
 
+bool XQBoard::checkLPath(int col, int & pass, XQPiece * p) const {
+    if (p) {
+        pass += 1;
+        if (p->GetCol() == col) {
+            return true;
+        }
+        if ((pass == 1 && (p->Type() == XQPIECE_Jiang || p->Type() == XQPIECE_Ju)) || (pass == 2 && p->Type() == XQPIECE_Pao)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool XQBoard::safe(int col, const pair<int, int> & pos) const {
+    int h = height();
+    int w = width();
+
+    // check Bing's attack
+    XQPiece * p = get(pos.first, pos.second+1-col*2);
+    if ((p && p->GetCol() != col && p->Type() == XQPIECE_Bing) || 
+    (get(pos.first-1, pos.second) && get(pos.first-1, pos.second)->Type() == XQPIECE_Bing) || 
+    (get(pos.first+1, pos.second) && get(pos.first+1, pos.second)->Type() == XQPIECE_Bing)) {
+        return false;
+    }
+
+    // check lines
+    for (int y = pos.second+1, pass = 0; y < h && pass <= 1; y += 1) {
+        if (!checkLPath(col, pass, get(pos.first, y))) {
+            return false;
+        }
+    }
+    for (int y = pos.second-1, pass = 0; y >= 0 && pass <= 1; y -= 1) {
+        if (!checkLPath(col, pass, get(pos.first, y))) {
+            return false;
+        }
+    }
+    for (int x = pos.first+1, pass = 0; x < w && pass <= 1; x += 1) {
+        if (!checkLPath(col, pass, get(x, pos.second))) {
+            return false;
+        }
+    }
+    for (int x = pos.first-1, pass = 0; x >= 0 && pass <= 1; x -= 1) {
+        if (!checkLPath(col, pass, get(x, pos.second))) {
+            return false;
+        }
+    }
+
+    // check Ma's attack
+    for (int x : {-1, 1}) {
+        for (int y : {-1, 1}) {
+            if (pos.second+y >= 0 && pos.second+y < h && !get(pos.first+x, pos.second+y)) {
+                if (pos.second+y*2 >= 0 && pos.second+y*2 < h)  {
+                    XQPiece * p = get(pos.first+x, pos.second+y*2);
+                    if (p && p->GetCol() != col && p->Type() == XQPIECE_Ma) {
+                        return false;
+                    }
+                }
+                XQPiece * p = get(pos.first+x*2, pos.second+y);
+                if (p &&  p->GetCol() != col && p->Type() == XQPIECE_Ma) {
+                    return false;
+                }
+            }
+        }
+    }
     return true;
 }
 

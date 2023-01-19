@@ -9,8 +9,12 @@ Item::Item() {}
 
 Item::~Item() {}
 
-int Item::Val() const {
+double Item::Val() const {
     return val();
+}
+
+double Item::Val(const pair<int,int> & at) const {
+    return val(at);
 }
 
 
@@ -65,34 +69,30 @@ void XQPiece::SetPos(const pair<int,int> & pos) {
     SetPos(pos.first, pos.second);
 }
 
-int XQPiece::val() const {
+double XQPiece::val() const {
+    return val(pos);
+}
+
+double XQPiece::val(const pair<int,int> & at) const {
     switch (type)
     {
-    case 1:
+    case XQPIECE_Jiang:
         return 200;
-        break;
-    case 2:
-        return 30;
-        break;
-    case 3:
-        return 120;
-        break;
-    case 4:
-        return 100;
-        break;
-    case 5:
-        return 80;
-        break;
-    case 6:
+    case XQPIECE_Shi:
+        return 30 + (at.second == 1-colour*6 ? 1 : 0);
+    case XQPIECE_Ju:
+        return 120 + (1-at.first%2)*15;
+    case XQPIECE_Pao:
+        return 100 + (at.first%2)*15;
+    case XQPIECE_Ma:
+        return 80 + (at.first%2)*10;
+    case XQPIECE_Xiang:
         return 50;
-        break;
-    case 7:
+    case XQPIECE_Bing:
         return 20;
-        break;
     default:
-        break;
+        return 0;
     }
-    return 0;
 }
 
 bool XQPiece::valid() const {

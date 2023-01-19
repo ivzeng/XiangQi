@@ -32,12 +32,13 @@ unique_ptr<Move> Move::Copy () const {
     return copy();
 }
 
+double Move::Val() const {
+    return val();
+}
+
 //   XQMove   //
 XQMove::XQMove(const pair<int, int> & from, const pair<int, int> & to, XQPiece * target, XQPiece * captured) : from{from}, to{to}, target{target}, captured{captured} {}
 
-int XQMove::Val() {
-    return 0;
-}
 
 void XQMove::proc() {
     target->SetPos(to);
@@ -69,4 +70,12 @@ string XQMove::rep() {
 
 unique_ptr<Move> XQMove::copy() const {
     return make_unique<XQMove>(*this);
+}
+
+double XQMove::val() const {
+    int res = target->Val(to) -  target->Val(from);
+    if (captured) {
+        res += captured->Val(to);
+    }
+    return res;
 }

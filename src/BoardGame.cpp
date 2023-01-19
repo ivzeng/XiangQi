@@ -80,7 +80,7 @@ int BoardGame::proc(const string & cmd, string & fb) {
         fb += '\n';
         return 1;
     case CMD_ShowB:     // showing board
-        fb.reserve(400);
+        fb.reserve(600);
         board->Info(fb, *msg);
         fb += '\n';
         return 1;
@@ -99,10 +99,12 @@ int BoardGame::proc(const string & cmd, string & fb) {
             fb = msg->Get(MTYPE_Proc, CMD_Undo);
             return 0;
         }
+        
         fb.reserve(20);
         fb += msg->Get(MTYPE_Proc, CMD_Undo, 1);
         fb += hist.back()->Rep();
         fb += msg->Get(MTYPE_Proc, CMD_Undo, 2);
+        
         undoRound();
         return 1;
     default:
@@ -122,7 +124,7 @@ int BoardGame::proc(const string & cmd, string & fb) {
             fb = msg->GetD(MTYPE_Proc, 0);
             return -1;
         case STATE_Game:{
-            Move * move = players[pMoveIdx()]->Decide(cmd, moves, *board, round);
+            Move * move = players[pMoveIdx()]->Decide(cmd, moves, board.get(), round);
             if (! move) {
                 fb = fb = msg->GetD(MTYPE_Proc, 0);
                 return -1;
@@ -222,14 +224,13 @@ void BoardGame::updateRMsg(string & m) const {
         m += msg->Get(MTYPE_State, STATE_PSetting, 1);
         break;
     case STATE_Game:
-        m.reserve(400);
+        m.reserve(600);
         board->Info(m, *msg);
         m += msg->Get(MTYPE_State, STATE_Game, 0);
         m += to_string(gameRound() + 1);
         m += msg->Get(MTYPE_State, STATE_Game, 1);
         m += msg->Get(MTYPE_Board, 3, pMoveIdx());
         m += msg->Get(MTYPE_State, STATE_Game, 2);
-;
         break;
     default:
         break;
