@@ -3,6 +3,8 @@
 #include "Move.h"
 #include "helpers.h"
 
+#include <cmath>
+
 using namespace std;
 
 Item::Item() {}
@@ -79,17 +81,17 @@ double XQPiece::val(const pair<int,int> & at) const {
     case XQPIECE_Jiang:
         return 200;
     case XQPIECE_Shi:
-        return 30 + (at.second == 1-colour*6 ? 1 : 0);
+        return 30 + (at.second == 1+colour*7 ? 5 : 0);
     case XQPIECE_Ju:
-        return 120 + (1-at.first%2)*15;
+        return 120 + (at.first%2)*10;
     case XQPIECE_Pao:
-        return 100 + (at.first%2)*15;
+        return 100 + (1-at.first%2)*15;
     case XQPIECE_Ma:
-        return 80 + (at.first%2)*10;
+        return 80;
     case XQPIECE_Xiang:
         return 50;
     case XQPIECE_Bing:
-        return 20;
+        return 50 - pow(2+colour*5-pos.second, 2);
     default:
         return 0;
     }

@@ -31,6 +31,10 @@ int Board::PMoveIdx(int round) const {
     return pMoveIdx(round);
 }
 
+double Board::Val(int col) const {
+    return val(col);
+}
+
 
 //  XQBoard  //
 
@@ -177,6 +181,21 @@ int XQBoard::height() const {
 
 int XQBoard::pMoveIdx(int round) const {
     return round%2;
+}
+
+double XQBoard::val(int col) const {
+    int res = 0;
+    for (const unique_ptr<XQPiece> & p : pieces[col]) {
+        if (p->Valid()) {
+            res += p->Val();
+        }
+    }
+    for (const unique_ptr<XQPiece> & p : pieces[1-col]) {
+        if (p->Valid()) {
+            res -= p->Val();
+        }
+    }
+    return res;
 }
 
 int XQBoard::edgeType(int x, int y) const {

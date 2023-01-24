@@ -20,6 +20,7 @@ class Board {
     virtual void getMoves(int round, std::vector<std::unique_ptr<Move>> & moves) = 0;
     virtual void info(std::string & m, const Msg & msg) = 0;
     virtual int pMoveIdx(int round) const = 0;
+    virtual double val(int col) const = 0;
 
     public:
     Board();
@@ -30,6 +31,7 @@ class Board {
     void Info(std::string & m, const Msg & msg);        // print the board information
 
     int PMoveIdx(int round) const;
+    double Val(int col) const;
 };
 
 // XiangQi Board //
@@ -54,6 +56,7 @@ class XQBoard : public Board {
     int width() const;
     int height() const;
     int pMoveIdx(int round) const override;
+    double val(int col) const override;
     int edgeType(int x, int y) const;
 
     // move analysis

@@ -18,11 +18,34 @@ Move * Player::Decide(const string & cmd, std::vector<std::unique_ptr<Move>> & m
     return decide(cmd, moves, board, round);
 }
 
-double Player::EOutcome(int l, priority_queue<double> & outcomes) const {
+double Player::outcome(Board * board,  Move * move, double score, int col) const {
+    return move->Val() - score;
+}
+
+double Player::eOutcome(int l, priority_queue<double> & outcomes) const {
     double res = 0;
     int factor = 1;
-    while (outcomes.size() != 1 && l != 1) {
+    if ((int)outcomes.size() < l) {
+        l = outcomes.size();
+    }
+
+    while (l != 1) {
         factor *= 2;
+        l -= 1;
+        res +=(double)outcomes.top()/factor;
+        outcomes.pop();
+    }
+    res += outcomes.top()/factor;
+    return res;
+}
+
+double Player::aOutcome(int l, priority_queue<double> & outcomes) const {
+    double res = 0;
+    if ((int)outcomes.size() < l) {
+        l = outcomes.size();
+    }
+    int factor = l;
+    while (l != 1) {
         l -= 1;
         res +=(double)outcomes.top()/factor;
         outcomes.pop();
@@ -40,19 +63,18 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
     priority_queue<double> scores {};
     if (depth <= 0) {
         for (const unique_ptr<Move> & move :moves) {
-            scores.push(move->Val());
+            scores.push(outcome(board, move.get(), score, board->PMoveIdx(round)));
         }
+        return aOutcome(20, scores);
     }
-    else {
-        for (const unique_ptr<Move> & move :moves) {
-            move->Proc();
-            move->Set(board);
-            scores.push(-dfsMoveAnalysis(board, move->Val(), round+1, depth-1));
-            move->Undo();
-            move->RSet(board);
-        }
+    for (const unique_ptr<Move> & move :moves) {
+        move->Proc();
+        move->Set(board);
+        scores.push(-dfsMoveAnalysis(board, move->Val()-score, round+1, depth-1));
+        move->Undo();
+        move->RSet(board);
     }
-    return EOutcome(15, scores) - score;
+    return eOutcome(10, scores);
 }
 
 Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * board, int round, int depth) const {
@@ -64,12 +86,12 @@ Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * boa
     for (int i = moves.size()-1; i >= 0; i -= 1) {
         moves[i]->Proc();
         moves[i]->Set(board);
-        double curSc = dfsMoveAnalysis(board, moves[0]->Val(), round+1, depth);
+        double curSc = dfsMoveAnalysis(board, moves[i]->Val(), round+1, depth);
         if (curSc <= minSc) {
             minSc = curSc;
             minIdx = i;
         }
-        //cout << moves[i]->Rep() << ' ' << minSc << endl;
+        //cout << moves[i]->Rep() << ' ' << curSc << endl;
         moves[i]->Undo();
         moves[i]->RSet(board);
     }
@@ -116,6 +138,7 @@ Move * Computer0::decide(const string & cmd, std::vector<std::unique_ptr<Move>> 
 
 //  Computer 1  //
 Computer1::Computer1() : Computer{} {}
+
 string Computer1::rep() {
     return "computer1";
 }
@@ -127,6 +150,30 @@ Move * Computer1::decide(const string & cmd, std::vector<std::unique_ptr<Move>> 
     return dfsMoveSearch(moves, board, round, 2);
 }
 
+// computer 2   //
+Computer2::Computer2() : Computer{} {} 
+
+string Computer2::rep() {
+    return "computer2";
+}
+
+Move * Computer2::decide(const string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board * board, int round) {
+    if (cmd != "m" && cmd != "") {
+        return nullptr;
+    }
+    return dfsMoveSearch(moves, board, round, 2);
+}
+
+double Computer2::outcome(Board * board, Move * move, double score, int col) const {
+    move->Proc();
+    move->Set(board);
+    double res = board->Val(col);
+    move->Undo();
+    move->RSet(board);
+    return res;
+}
+
+
 //  other functions   //
 unique_ptr<Player> makePlayer(int type) {
     switch (type)
@@ -137,6 +184,8 @@ unique_ptr<Player> makePlayer(int type) {
         return make_unique<Computer0>();
     case 2:
         return make_unique<Computer1>();
+    case 3:
+        return make_unique<Computer2>();
     
     default:
         return nullptr;

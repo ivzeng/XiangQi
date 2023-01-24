@@ -31,6 +31,8 @@ void BoardGame::init() {
     playerType.emplace_back("h");
     playerType.emplace_back("c0");
     playerType.emplace_back("c1");
+    playerType.emplace_back("c2");
+
 }
 
 void BoardGame::resetPlayers() {
@@ -126,15 +128,17 @@ int BoardGame::proc(const string & cmd, string & fb) {
         case STATE_Game:{
             Move * move = players[pMoveIdx()]->Decide(cmd, moves, board.get(), round);
             if (! move) {
-                fb = fb = msg->GetD(MTYPE_Proc, 0);
+                fb = msg->GetD(MTYPE_Proc, 0);
                 return -1;
             }
+            fb += move->Rep();
+            fb += '\n';
             doRound(move);
             if (moves.size() == 0) {
                 fb.reserve(50);
-                fb += "Player ";
-                fb += char(pMoveIdx()+'1');
-                fb += "win.\n";
+                fb += msg->Get(MTYPE_State, STATE_Game, 3);
+                fb += msg->Get(MTYPE_Board, 3, 1-pMoveIdx());
+                fb += msg->Get(MTYPE_State, STATE_Game, 4);
                 return 0;
             }
             return 1;

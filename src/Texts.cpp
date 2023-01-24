@@ -43,7 +43,7 @@ void Msg_XQ::init() {
     msgs[0][MTYPE_State][STATE_Main] = {"XiangQI\nMain Menu: \n"};
     msgs[0][MTYPE_State][STATE_Setting] = {"Setting: \n"};
     msgs[0][MTYPE_State][STATE_PSetting] = {"Setting Player (", "): \n"};
-    msgs[0][MTYPE_State][STATE_Game] = {"\nRound ", ",\nPlayer(", ") move:"};
+    msgs[0][MTYPE_State][STATE_Game] = {"\nRound ", ",\nPlayer(", ") move:\n", "Player(", ") wins!\n"};
 
     msgs[0][MTYPE_Proc] = vector<vector<string>>(25);
     msgs[0][MTYPE_Proc][CMD_End] = {"Exits.\n"};
@@ -61,7 +61,7 @@ void Msg_XQ::init() {
     msgs[1][MTYPE_State][STATE_Main] = {"象棋\n主菜单:\n"};
     msgs[1][MTYPE_State][STATE_Setting] = {"设置: \n"};
     msgs[1][MTYPE_State][STATE_PSetting] = {"选择", "方: \n"};
-    msgs[1][MTYPE_State][STATE_Game] = {"\n回合 ", ", \n", "方回合:"};
+    msgs[1][MTYPE_State][STATE_Game] = {"\n回合 ", ", \n", "方回合:", "", "方获胜!\n"};
 
     msgs[1][MTYPE_Proc] = vector<vector<string>>(25);
     msgs[1][MTYPE_Proc][CMD_End] = {"退出。\n"};

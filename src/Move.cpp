@@ -73,9 +73,9 @@ unique_ptr<Move> XQMove::copy() const {
 }
 
 double XQMove::val() const {
-    int res = target->Val(to) -  target->Val(from);
+    int res = (double)target->Val(to) -  target->Val(from);
     if (captured) {
-        res += captured->Val(to);
+        res += (double)captured->Val(to);
     }
     return res;
 }
