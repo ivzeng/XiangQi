@@ -24,7 +24,6 @@ class Player {
     // finds a good move with a number [depth] of simulation rounds
     virtual double outcome(Board * board, Move * move, double score, int col = 0) const;
     virtual double eOutcome(int l, std::priority_queue<double> & outcomes) const;
-    virtual double aOutcome(int l, std::priority_queue<double> & outcomes) const;
     virtual double dfsMoveAnalysis(Board * board, double curScore, int round, int depth) const;
     Move * dfsMoveSearch(const std::vector<std::unique_ptr<Move>> & moves, Board * board, int round,int depth) const;
     virtual std::string rep() = 0; 

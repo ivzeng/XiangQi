@@ -39,20 +39,6 @@ double Player::eOutcome(int l, priority_queue<double> & outcomes) const {
     return res;
 }
 
-double Player::aOutcome(int l, priority_queue<double> & outcomes) const {
-    double res = 0;
-    if ((int)outcomes.size() < l) {
-        l = outcomes.size();
-    }
-    int factor = l;
-    while (l != 1) {
-        l -= 1;
-        res +=(double)outcomes.top()/factor;
-        outcomes.pop();
-    }
-    res += outcomes.top()/factor;
-    return res;
-}
 
 double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth) const {
     vector<unique_ptr<Move>> moves{};
@@ -65,7 +51,7 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
         for (const unique_ptr<Move> & move :moves) {
             scores.push(outcome(board, move.get(), score, board->PMoveIdx(round)));
         }
-        return aOutcome(20, scores);
+        return eOutcome(20, scores);
     }
     for (const unique_ptr<Move> & move :moves) {
         move->Proc();
