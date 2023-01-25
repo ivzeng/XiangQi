@@ -54,7 +54,7 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
         }
         return eOutcome(20, scores);
     }
-    for (int i : {30, 20, 14, 8, 3}) {
+    for (int i : {40, 25, 13, 7, 4}) {
         if (l > i) {
             depth -= 1;
         }
