@@ -43,7 +43,8 @@ double Player::eOutcome(int l, priority_queue<double> & outcomes) const {
 double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth) const {
     vector<unique_ptr<Move>> moves{};
     board->GetMoves(round, moves);
-    if (moves.size() == 0) {
+    int l = moves.size();
+    if (l == 0) {
         return -1000;
     }
     priority_queue<double> scores {};
@@ -52,6 +53,11 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
             scores.push(outcome(board, move.get(), score, board->PMoveIdx(round)));
         }
         return eOutcome(20, scores);
+    }
+    for (int i : {30, 20, 14, 8, 3}) {
+        if (l > i) {
+            depth -= 1;
+        }
     }
     for (const unique_ptr<Move> & move :moves) {
         move->Proc();
@@ -67,12 +73,15 @@ Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * boa
     if (moves.size() == 0) {
         return nullptr;
     }
+    else if (moves.size() == 1) {
+        return moves[0].get();
+    }
     double minSc = 1000;
     int minIdx = 0;
     for (int i = moves.size()-1; i >= 0; i -= 1) {
         moves[i]->Proc();
         moves[i]->Set(board);
-        double curSc = dfsMoveAnalysis(board, moves[i]->Val(), round+1, depth);
+        double curSc = dfsMoveAnalysis(board, moves[i]->Val(), round+1, depth*5);
         if (curSc <= minSc) {
             minSc = curSc;
             minIdx = i;
