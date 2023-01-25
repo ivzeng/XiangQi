@@ -368,7 +368,7 @@ void XQBoard::xScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<
 
 void XQBoard::bScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col) {
     int dir = 1-col*2;
-    if (pos.first + dir >= 0 && pos.second + dir < height()) {
+    if (pos.second + dir >= 0 && pos.second + dir < height()) {
         insertMove(moves, pos, {pos.first, pos.second+dir}, col);
     }
     if (col != pos.second/5) {
