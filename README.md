@@ -9,7 +9,7 @@ A XiangQi terminal interface and engine
 
 - set: goes to setting
 
-- setl: set language
+- setl: sets language
 
 - end: exits (at main menu) / return to the main manu (in game)
 
