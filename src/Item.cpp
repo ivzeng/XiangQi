@@ -89,7 +89,7 @@ double XQPiece::val(const pair<int,int> & at) const {
     case XQPIECE_Ma:
         return 80;
     case XQPIECE_Xiang:
-        return 50;
+        return 40;
     case XQPIECE_Bing:
         return 50 - pow(2+colour*5-pos.second, 2);
     default:

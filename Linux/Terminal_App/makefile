@@ -11,4 +11,4 @@ ${EXEC}: $(addprefix  $(DIRECTORY), $(OBJECTS))
 .PHONY: clean
 
 clean:
-	rm $(addprefix  $(DIRECTORY), $(OBJECTS)) ${EXEC}
+	rm $(addprefix  $(DIRECTORY), $(OBJECTS))

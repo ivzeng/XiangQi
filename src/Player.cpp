@@ -81,7 +81,7 @@ Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * boa
     for (int i = moves.size()-1; i >= 0; i -= 1) {
         moves[i]->Proc();
         moves[i]->Set(board);
-        double curSc = dfsMoveAnalysis(board, moves[i]->Val(), round+1, depth*5);
+        double curSc = dfsMoveAnalysis(board, moves[i]->Val(), round+1, depth*5+1);
         if (curSc <= minSc) {
             minSc = curSc;
             minIdx = i;
