@@ -22,20 +22,19 @@ double Player::outcome(Board * board,  Move * move, double score, int col) const
     return move->Val() - score;
 }
 
-double Player::eOutcome(int l, priority_queue<double> & outcomes) const {
+double Player::eOutcome(int l, priority_queue<double> & outcomes, double factor) const {
     double res = 0;
-    int factor = 1;
+    double remain = 1;
     if ((int)outcomes.size() < l) {
         l = outcomes.size();
     }
-
     while (l != 1) {
-        factor *= 2;
-        l -= 1;
-        res +=(double)outcomes.top()/factor;
+        res +=(double)outcomes.top()*remain*factor;
         outcomes.pop();
+        remain *= (1-factor);
+        l -= 1;
     }
-    res += outcomes.top()/factor;
+    res += outcomes.top()*remain;
     return res;
 }
 
@@ -47,7 +46,7 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
     if (l == 0) {
         return -1000;
     }
-    for (int i : {52, 45, 31, 20, 13, 6}) {
+    for (int i : {52, 40, 28, 20, 13, 7}) {
         if (l > i) {
             depth -= 1;
         }
@@ -66,7 +65,7 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
         move->Undo();
         move->RSet(board);
     }
-    return eOutcome(10, scores);
+    return eOutcome(10, scores, 0.7);
 }
 
 Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * board, int round, int depth) const {
@@ -86,7 +85,7 @@ Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * boa
             minSc = curSc;
             minIdx = i;
         }
-        cout << moves[i]->Rep() << ' ' << curSc << endl;
+        //cout << moves[i]->Rep() << ' ' << curSc << endl;
         moves[i]->Undo();
         moves[i]->RSet(board);
     }
