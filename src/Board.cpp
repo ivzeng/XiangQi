@@ -2,9 +2,8 @@
 #include "Item.h"
 #include "Move.h"
 #include "Texts.h"
+#include "helpers.h"
 #include <iostream>
-#include <algorithm>
-#include <functional>
 
 using namespace std;
 
@@ -186,20 +185,43 @@ int XQBoard::pMoveIdx(int round) const {
 }
 
 double XQBoard::outcome(int round) {
-    // gets theats moves and protections moves sorted in ascending order according to the value of the piece to move
-    vector<unique_ptr<Move>> threats{};
-    vector<unique_ptr<Move>> protections{};
-    getMoves(round, threats, 1);
-    getMoves(round+1, protections, 2);
-    function<bool(const unique_ptr<Move> &, const unique_ptr<Move> & )> moves_comp ([] (const unique_ptr<Move> & m1, const unique_ptr<Move> & m2) {
-        return m1->PVal() < m2->PVal();
-    });
-    sort(threats.begin(), threats.end(), moves_comp);
-    sort(protections.begin(), protections.end(), moves_comp);
-    vector<pair<int, int>> markedPoss{};
-    pair<int, int> posScore[10][9] {pair<int, int>{0,0}};
+    double res = 0;
+    int threatsCount [10][9] {0};
+    vector<unique_ptr<Move>> selfThreats{};
+    vector<unique_ptr<Move>> selfProtections{};
+    vector<unique_ptr<Move>> otherThreats{};
+    vector<unique_ptr<Move>> otherProtections{};
+    auto threats = vector<vector<unique_ptr<Move>>> {selfThreats, otherThreats};
+    auto protections = vector<vector<unique_ptr<Move>>> {selfProtections, otherProtections};
+
+    // gets theat moves and protection moves of the two players
+    getMoves(round, selfThreats, 1);
+    getMoves(round, selfProtections, 2);
+    getMoves(round+1, otherThreats, 1);
+    getMoves(round+1, otherProtections, 2);
     
-    return 0;
+    for (int i : {0,1}) {
+        for (const unique_ptr<Move> & move : threats[i]) {
+            vector<Item *> items = move->Items();
+            XQPiece * piece = dynamic_cast<XQPiece *> (items[0]);
+            XQPiece * target = dynamic_cast<XQPiece *> (items[1]);
+            threatsCount[target->GetPos().second][target->GetPos().first] += 1;
+            res += (1 - 2*i)*exchangeOutcome(piece->Val(), target->Val());
+        }
+    }
+
+    for (int i : {0,1}) {
+        for (const unique_ptr<Move> & move : protections[i]) {
+            vector<Item *> items = move->Items();
+            XQPiece * piece = dynamic_cast<XQPiece *> (items[0]);
+            XQPiece * target = dynamic_cast<XQPiece *> (items[1]);
+            if (threatsCount[target->GetPos().second][target->GetPos().first] != 0) {
+                threatsCount[target->GetPos().second][target->GetPos().first] -= 1;
+                res += (1 - 2*i)*exchangeOutcome(piece->Val(), target->Val());
+            }
+        }
+    }
+    return res;
 }
 
 int XQBoard::edgeType(int x, int y) const {

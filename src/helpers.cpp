@@ -1,6 +1,7 @@
 #include "helpers.h"
 #include "IO.h"
 #include "BoardGame.h"
+#include <math.h>
 
 using namespace std;
 
@@ -24,4 +25,25 @@ void lowerCase(std::string & s){
     for (char & c : s) {
         lowerCase(c);
     }
+}
+
+
+double exchangeOutcome(double valueFrom, double valueTo) {
+    return valueTo - pow(valueFrom, 2)*pow(valueTo, 0.5)/1000;
+}
+
+double expectedOutcome(int l, std::priority_queue<double> & outcomes, double factor = 0.5){
+    double res = 0;
+    double remain = 1;
+    if ((int)outcomes.size() < l) {
+        l = outcomes.size();
+    }
+    while (l != 1) {
+        res +=(double)outcomes.top()*remain*factor;
+        outcomes.pop();
+        remain *= (1-factor);
+        l -= 1;
+    }
+    res += outcomes.top()*remain;
+    return res;
 }

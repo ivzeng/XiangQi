@@ -11,24 +11,31 @@ class Board;
 
 //    Item Class   //
 class Item {
+    /**   Fields   **/
 
-    virtual double val() const = 0;    // gets the value of the Piece
-    virtual double val(const std::pair<int,int> & at) const = 0;    // gets the value of the Piece at the pos 
-    virtual bool valid() const = 0;  // determine if an item is valid
+    /**   Functions   **/
+    virtual double val() const = 0;    
+    virtual double val(const std::pair<int,int> & at) const = 0;    
+    virtual bool valid() const = 0;
 
     public:
     Item();
     virtual ~Item() = 0;
 
+    // gets the value of the Piece
     double Val() const;
+
+    // gets the value of the Piece at the pos 
     double Val(const std::pair<int,int> & at) const;
+
+    // determine if an item is valid
     bool Valid() const;
 
 };
 
 //    XiangQi Pieces    //
 // handles move-searching; 
-// is one of the following:
+// as one of the following:
 //   Jiang | Shi | Ju | Pao | Ma | Xiang | Bing
 
 // piece types
@@ -43,13 +50,16 @@ class Item {
 
 
 class XQPiece : public Item {
+    /**   Fields   **/
+
     protected:
     int type;
     int status;
     int colour;
     std::pair<int,int> pos;
 
-    // functions
+    /**   Functions   **/
+
     double val() const override;
     double val(const std::pair<int,int> & at) const override;
     bool valid() const override;
@@ -58,13 +68,24 @@ class XQPiece : public Item {
     public:
 
     XQPiece();
+
+    // initializes
     void Init(int type, int colour, const std::pair<int,int> & pos);
     void Init(int type, int colour, int x, int y);
 
+    // returns piece type
     int Type() const;
+
+    // returns piece position
     const std::pair<int, int> & GetPos() const;
+
+    // returns piece colour
     int GetCol() const;
+
+    // sets piece status, default 1 (valid)
     void SetStatus(int stat = 1);
+
+    // sets piece positions
     void SetPos(int x, int y);
     void SetPos(const std::pair<int,int> & pos);
 };

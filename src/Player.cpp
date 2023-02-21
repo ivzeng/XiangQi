@@ -2,6 +2,7 @@
 #include "BoardGame.h"
 #include "Move.h"
 #include "Board.h"
+#include "helpers.h"
 #include <iostream>
 
 using namespace std;
@@ -25,23 +26,6 @@ double Player::outcome(Board * board, double score, int round, Move * move) cons
     return score;
 }
 
-double Player::eOutcome(int l, priority_queue<double> & outcomes, double factor) const {
-    double res = 0;
-    double remain = 1;
-    if ((int)outcomes.size() < l) {
-        l = outcomes.size();
-    }
-    while (l != 1) {
-        res +=(double)outcomes.top()*remain*factor;
-        outcomes.pop();
-        remain *= (1-factor);
-        l -= 1;
-    }
-    res += outcomes.top()*remain;
-    return res;
-}
-
-
 double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth) const {
     vector<unique_ptr<Move>> moves{};
     board->GetMoves(round, moves);
@@ -59,7 +43,7 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
         for (const unique_ptr<Move> & move :moves) {
             scores.push(outcome(board, move->Outcome()-score, round+1, move.get()));
         }
-        return eOutcome(20, scores);
+        return expectedOutcome(20, scores);
     }
     for (const unique_ptr<Move> & move :moves) {
         move->Proc();
@@ -68,7 +52,7 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
         move->Undo();
         move->RSet(board);
     }
-    return eOutcome(10, scores, 0.7);
+    return expectedOutcome(10, scores, 0.7);
 }
 
 Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * board, int round, int depth) const {
