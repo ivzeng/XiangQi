@@ -44,6 +44,8 @@ vector<Item *> Move::Items() const {
 //   XQMove   //
 XQMove::XQMove(const pair<int, int> & from, const pair<int, int> & to, XQPiece * piece, XQPiece * target) : from{from}, to{to}, piece{piece}, target{target} {}
 
+XQMove::~XQMove() {}
+
 
 void XQMove::proc() {
     piece->SetPos(to);
@@ -78,7 +80,7 @@ unique_ptr<Move> XQMove::copy() const {
 }
 
 double XQMove::outcome() const {
-    int res = (double)piece->Val(to) -  piece->Val(from);
+    int res = (double)piece->Val(to) - piece->Val(from);
     if (target) {
         res += (double)target->Val(to);
     }

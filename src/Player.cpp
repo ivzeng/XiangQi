@@ -72,7 +72,7 @@ Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * boa
             minSc = curSc;
             minIdx = i;
         }
-        //cout << moves[i]->Rep() << ' ' << curSc << endl;
+        cout << moves[i]->Rep() << ' ' << curSc << endl;
         moves[i]->Undo();
         moves[i]->RSet(board);
     }
@@ -151,6 +151,7 @@ double Computer2::outcome(Board * board, double score, int round, Move * move) c
     double res = score - (double) board->Outcome(round);
     move->Undo();
     move->RSet(board);
+    //cout << res << endl;
     return res;
 }
 

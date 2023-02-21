@@ -1,6 +1,7 @@
 #ifndef Move_H
 #define Move_H
 #include <utility>
+#include <vector>
 #include <string>
 #include <memory>
 
@@ -20,7 +21,6 @@ class Move {
     virtual std::string rep() = 0;
     virtual std::unique_ptr<Move> copy() const = 0;
     virtual double outcome() const = 0;
-    virtual double getPiece() const = 0;
     virtual std::vector<Item *> items() const = 0;
 
     public:
@@ -75,6 +75,7 @@ class XQMove : public Move {
 
     public:
     XQMove (const std::pair<int, int> & from, const std::pair<int, int> & to, XQPiece * target, XQPiece * captured = nullptr);
+    ~XQMove() override;
 };
 
 
