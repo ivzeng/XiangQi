@@ -3,6 +3,8 @@
 #include "Move.h"
 #include "Texts.h"
 #include <iostream>
+#include <algorithm>
+#include <functional>
 
 using namespace std;
 
@@ -22,8 +24,8 @@ void Board::Info(string & in, const Msg & msg) {
     info(in, msg);
 }
 
-void Board::GetMoves(int round, vector<unique_ptr<Move>> & moves) {
-    getMoves(round, moves);
+void Board::GetMoves(int round, vector<unique_ptr<Move>> & moves, int mode) {
+    getMoves(round, moves, mode);
 } 
 
 
@@ -31,8 +33,8 @@ int Board::PMoveIdx(int round) const {
     return pMoveIdx(round);
 }
 
-double Board::Val(int col) const {
-    return val(col);
+double Board::Outcome(int round) {
+    return outcome(round);
 }
 
 
@@ -183,19 +185,21 @@ int XQBoard::pMoveIdx(int round) const {
     return round%2;
 }
 
-double XQBoard::val(int col) const {
-    int res = 0;
-    for (const unique_ptr<XQPiece> & p : pieces[col]) {
-        if (p->Valid()) {
-            res += p->Val();
-        }
-    }
-    for (const unique_ptr<XQPiece> & p : pieces[1-col]) {
-        if (p->Valid()) {
-            res -= p->Val();
-        }
-    }
-    return res;
+double XQBoard::outcome(int round) {
+    // gets theats moves and protections moves sorted in ascending order according to the value of the piece to move
+    vector<unique_ptr<Move>> threats{};
+    vector<unique_ptr<Move>> protections{};
+    getMoves(round, threats, 1);
+    getMoves(round+1, protections, 2);
+    function<bool(const unique_ptr<Move> &, const unique_ptr<Move> & )> moves_comp ([] (const unique_ptr<Move> & m1, const unique_ptr<Move> & m2) {
+        return m1->PVal() < m2->PVal();
+    });
+    sort(threats.begin(), threats.end(), moves_comp);
+    sort(protections.begin(), protections.end(), moves_comp);
+    vector<pair<int, int>> markedPoss{};
+    pair<int, int> posScore[10][9] {pair<int, int>{0,0}};
+    
+    return 0;
 }
 
 int XQBoard::edgeType(int x, int y) const {
@@ -221,193 +225,199 @@ int XQBoard::edgeType(int x, int y) const {
 }
 
 
-void XQBoard::getMoves(int round, vector<unique_ptr<Move>> & moves)  {
+void XQBoard::getMoves(int round, vector<unique_ptr<Move>> & moves, int mode)  {
     int col = pMoveIdx(round);
     for (const unique_ptr<XQPiece> & p : pieces[col]) {
         if (p->Valid()) { 
-            scan(moves, *p);
+            scan(moves, *p, mode);
         }
     }
 }
 
-void XQBoard::scan(vector<unique_ptr<Move>> & moves, const XQPiece & p) {
+void XQBoard::scan(vector<unique_ptr<Move>> & moves, const XQPiece & p, int mode) {
     switch (p.Type())
     {
     case XQPIECE_Jiang:
-        jScan(moves, p.GetPos(), p.GetCol());
+        jScan(moves, p.GetPos(), p.GetCol(), mode);
         break;
     case XQPIECE_Shi:
-        sScan(moves, p.GetPos(), p.GetCol());
+        sScan(moves, p.GetPos(), p.GetCol(), mode);
         break;
     case XQPIECE_Ju:
-        lScan(moves, p.GetPos(), p.GetCol());
+        lScan(moves, p.GetPos(), p.GetCol(), mode);
         break;
     case XQPIECE_Pao:
-        lScan(moves, p.GetPos(), p.GetCol(), 1);
+        lScan(moves, p.GetPos(), p.GetCol(), mode, 1);
         break;
     case XQPIECE_Ma:
-        mScan(moves, p.GetPos(), p.GetCol());
+        mScan(moves, p.GetPos(), p.GetCol(), mode);
         break;
     case XQPIECE_Xiang:
-        xScan(moves, p.GetPos(), p.GetCol());
+        xScan(moves, p.GetPos(), p.GetCol(), mode);
         break;
     case XQPIECE_Bing:
-        bScan(moves, p.GetPos(), p.GetCol());
+        bScan(moves, p.GetPos(), p.GetCol(), mode);
         break;
     default:
         break;
     }
 }
 
-void XQBoard::jScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col) {
+void XQBoard::jScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col, int mode) {
     int ub = 2 + col*7;
     int lb = 0 + col*7;
     pair<int, int> to {pos};
     if(++to.first <= 5) {
-        insertMove(moves, pos, to, col, true);
+        insertMove(moves, pos, to, col, mode, true);
     }
     to.first = pos.first-1;
     if(to.first >= 3) {
-        insertMove(moves, pos, to, col, true);
+        insertMove(moves, pos, to, col, mode, true);
     }
     to.first = pos.first;
     to.second = pos.second+1;
     if(to.second <= ub) {
-        insertMove(moves, pos, to, col, true);
+        insertMove(moves, pos, to, col, mode, true);
     }
     to.second = pos.second-1;
     if(to.second >= lb) {
-        insertMove(moves, pos, to, col, true);
+        insertMove(moves, pos, to, col, mode, true);
     }
 }
 
-void XQBoard::sScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col) {
+void XQBoard::sScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col, int mode) {
     if (pos.first == 4) {
-        insertMove(moves, pos, {pos.first-1, pos.second-1}, col);
-        insertMove(moves, pos, {pos.first+1, pos.second-1}, col);
-        insertMove(moves, pos, {pos.first-1, pos.second+1}, col);
-        insertMove(moves, pos, {pos.first+1, pos.second+1}, col);
+        insertMove(moves, pos, {pos.first-1, pos.second-1}, col, mode);
+        insertMove(moves, pos, {pos.first+1, pos.second-1}, col, mode);
+        insertMove(moves, pos, {pos.first-1, pos.second+1}, col, mode);
+        insertMove(moves, pos, {pos.first+1, pos.second+1}, col, mode);
     }
     else {
-        insertMove(moves, pos, {4, 1+col*7}, col);
+        insertMove(moves, pos, {4, 1+col*7}, col, mode);
     }
 }
 
-void XQBoard::lScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col, int skip) {
+void XQBoard::lScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col, int mode, int skip) {
     int w = width();
     int h = height();
     pair<int,int>to{pos};
     to.first += 1;
-    for (int pass = 0; to.first < w && lInsertMove(moves, pos, to, col, pass, skip); to.first += 1);
+    for (int pass = 0; to.first < w && lInsertMove(moves, pos, to, col, pass, mode, skip); to.first += 1);
     to.first = pos.first-1;
-    for (int pass = 0; to.first >= 0 && lInsertMove(moves, pos, to, col, pass, skip); to.first -= 1);
+    for (int pass = 0; to.first >= 0 && lInsertMove(moves, pos, to, col, pass, mode, skip); to.first -= 1);
     to.first = pos.first;
     to.second = pos.second+1;
-    for (int pass = 0; to.second < h && lInsertMove(moves, pos, to, col, pass, skip); to.second += 1);
+    for (int pass = 0; to.second < h && lInsertMove(moves, pos, to, col, pass, mode, skip); to.second += 1);
     to.second = pos.second-1;
-    for (int pass = 0; to.second >= 0 && lInsertMove(moves, pos, to, col, pass, skip); to.second -= 1);
+    for (int pass = 0; to.second >= 0 && lInsertMove(moves, pos, to, col, pass, mode, skip); to.second -= 1);
 }
 
-void XQBoard::mScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col) {
+void XQBoard::mScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col, int mode) {
     int w = width();
     int h = height();
     if (pos.first + 2 < w && !get(pos.first+1, pos.second)) {
         if (pos.second + 1 < h) {
-            insertMove(moves, pos, {pos.first+2, pos.second+1}, col);
+            insertMove(moves, pos, {pos.first+2, pos.second+1}, col, mode);
         }
         if (pos.second - 1 >= 0) {
-            insertMove(moves, pos, {pos.first+2, pos.second-1}, col);
+            insertMove(moves, pos, {pos.first+2, pos.second-1}, col, mode);
         }
     }
     if (pos.first - 2 >= 0 && !get(pos.first-1, pos.second)) {
         if (pos.second + 1 < h) {
-            insertMove(moves, pos, {pos.first-2, pos.second+1}, col);
+            insertMove(moves, pos, {pos.first-2, pos.second+1}, col, mode);
         }
         if (pos.second - 1 >= 0) {
-            insertMove(moves, pos, {pos.first-2, pos.second-1}, col);
+            insertMove(moves, pos, {pos.first-2, pos.second-1}, col, mode);
         }
     }
     if (pos.second + 2 < h && !get(pos.first, pos.second+1)) {
         if (pos.first + 1 < w) {
-            insertMove(moves, pos, {pos.first+1, pos.second+2}, col);
+            insertMove(moves, pos, {pos.first+1, pos.second+2}, col, mode);
         }
         if (pos.first - 1 >= 0) {
-            insertMove(moves, pos, {pos.first-1, pos.second+2}, col);
+            insertMove(moves, pos, {pos.first-1, pos.second+2}, col, mode);
         }
     }
     if (pos.second - 2 >= 0 && !get(pos.first, pos.second-1)) {
         if (pos.first + 1 < w) {
-            insertMove(moves, pos, {pos.first+1, pos.second-2}, col);
+            insertMove(moves, pos, {pos.first+1, pos.second-2}, col, mode);
         }
         if (pos.first - 1 >= 0) {
-            insertMove(moves, pos, {pos.first-1, pos.second-2}, col);
+            insertMove(moves, pos, {pos.first-1, pos.second-2}, col, mode);
         }
     }
 }
 
-void XQBoard::xScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col) {
+void XQBoard::xScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col, int mode) {
     int w = width();
     int h = height();
     if (pos.second+2 < h && (pos.second+2)/5 == pos.second/5) {
         if (pos.first+2 < w && !get(pos.first+1, pos.second+1)) {
-            insertMove(moves, pos, {pos.first+2, pos.second+2}, col);
+            insertMove(moves, pos, {pos.first+2, pos.second+2}, col, mode);
         }
         if (pos.first-2 >= 0 && !get(pos.first-1, pos.second+1)) {
-            insertMove(moves, pos, {pos.first-2, pos.second+2}, col);
+            insertMove(moves, pos, {pos.first-2, pos.second+2}, col, mode);
         }
     }
     if (pos.second-2 >= 0 && (pos.second-2)/5 == pos.second/5) {
         if (pos.first+2 < w && !get(pos.first+1, pos.second-1)) {
-            insertMove(moves, pos, {pos.first+2, pos.second-2}, col);
+            insertMove(moves, pos, {pos.first+2, pos.second-2}, col, mode);
         }
         if (pos.first-2 >= 0 && !get(pos.first-1, pos.second-1)) {
-            insertMove(moves, pos, {pos.first-2, pos.second-2}, col);
+            insertMove(moves, pos, {pos.first-2, pos.second-2}, col, mode);
         }
     }
 }
 
-void XQBoard::bScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col) {
+void XQBoard::bScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col, int mode) {
     int dir = 1-col*2;
     if (pos.second + dir >= 0 && pos.second + dir < height()) {
-        insertMove(moves, pos, {pos.first, pos.second+dir}, col);
+        insertMove(moves, pos, {pos.first, pos.second+dir}, col, mode);
     }
     if (col != pos.second/5) {
         if (pos.first+1 < width()) {
-            insertMove(moves, pos, {pos.first+1, pos.second}, col);
+            insertMove(moves, pos, {pos.first+1, pos.second}, col, mode);
         }
         if (pos.first-1 >= 0) {
-            insertMove(moves, pos, {pos.first-1, pos.second}, col);
+            insertMove(moves, pos, {pos.first-1, pos.second}, col, mode);
         }
     }
 }
 
 
-void XQBoard::insertMove(vector<unique_ptr<Move>> & moves, const pair<int,int> & from, const pair<int,int> & to, int col, bool isK) {
-    XQPiece * target = get(from);
-    XQPiece * captured = get(to);
-    if (captured && captured->GetCol() == col) {
+void XQBoard::insertMove(vector<unique_ptr<Move>> & moves, const pair<int,int> & from, const pair<int,int> & to, int col, int mode, bool isK) {
+    XQPiece * piece = get(from);
+    XQPiece * target = get(to);
+    if (!target) {
+        if (mode != 0) {
+            return;
+        }
+    }
+    else if ((target->GetCol() == col && mode != 2) || (target->GetCol() != col && mode == 2)) {
         return;
     }
 
+
     set(from, nullptr);
-    set(to, target);
+    set(to, piece);
     if (safe(col , (isK ? to : pieces[col][0]->GetPos()))) {
-        moves.emplace_back(make_unique<XQMove>(from, to, target, captured));
+        moves.emplace_back(make_unique<XQMove>(from, to, piece, target));
     }
-    set(from, target);
-    set(to, captured);
+    set(from, piece);
+    set(to, target);
 }
 
-bool XQBoard::lInsertMove(vector<unique_ptr<Move>> & moves, const pair<int,int> & from, const pair<int,int> & to, int col, int & pass, int skip) {
+bool XQBoard::lInsertMove(vector<unique_ptr<Move>> & moves, const pair<int,int> & from, const pair<int,int> & to, int col, int & pass, int mode, int skip) {
     if(get(to)) {
             if (pass == skip) {
-                insertMove(moves, from, to, col);
+                insertMove(moves, from, to, col, mode);
                 return false;
             }
             pass += 1;
         }
         if (pass == 0) {
-            insertMove(moves, from, to, col);
+            insertMove(moves, from, to, col, mode);
         }
         return true;
 }

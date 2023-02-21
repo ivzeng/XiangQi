@@ -72,28 +72,40 @@ void XQPiece::SetPos(const pair<int,int> & pos) {
 }
 
 double XQPiece::val() const {
-    return val(pos);
-}
-
-double XQPiece::val(const pair<int,int> & at) const {
     switch (type)
     {
     case XQPIECE_Jiang:
         return 200;
     case XQPIECE_Shi:
-        return 30 + (at.second == 1+colour*7 ? 5 : 0);
+        return 30;
     case XQPIECE_Ju:
-        return 120 + (at.first%2)*10;
+        return 120;
     case XQPIECE_Pao:
-        return 100 + (1-at.first%2)*15;
+        return 100;
     case XQPIECE_Ma:
         return 80;
     case XQPIECE_Xiang:
         return 40;
     case XQPIECE_Bing:
-        return 50 - pow(2+colour*5-pos.second, 2);
+        return 50;
     default:
         return 0;
+    }
+}
+
+double XQPiece::val(const pair<int,int> & at) const {
+    switch (type)
+    {
+    case XQPIECE_Shi:
+        return val() + (at.second == 1+colour*7 ? 5 : 0);
+    case XQPIECE_Ju:
+        return val() + (at.first%2)*10;
+    case XQPIECE_Pao:
+        return val() + (1-at.first%2)*15;
+    case XQPIECE_Bing:
+        return val() - pow(2+colour*5-pos.second, 2);
+    default:
+        return val();
     }
 }
 
