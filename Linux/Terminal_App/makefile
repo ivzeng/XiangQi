@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++14 -Wall
+CXXFLAGS = -std=c++14 -Wall -O3
 DIRECTORY = ../../src/
 OBJECTS = XiangQi.o Interface.o BoardGame.o IO.o Player.o Board.o Item.o Move.o State.o Texts.o helpers.o
 EXEC = XiangQi.exe
