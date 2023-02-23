@@ -186,6 +186,7 @@ int XQBoard::pMoveIdx(int round) const {
 
 double XQBoard::outcome(int round) {
     double res = 0;
+    int safeAttackCount = 0;
     int threatsCount [10][9] {0};
     vector<unique_ptr<Move>> selfThreats{};
     vector<unique_ptr<Move>> otherProtections{};
@@ -201,6 +202,7 @@ double XQBoard::outcome(int round) {
         threatsCount[target->GetPos().second][target->GetPos().first] += 1;
         if (threatsCount[target->GetPos().second][target->GetPos().first] == 1) {
             res += target->Val();
+            safeAttackCount += 1;
         }
     }
 
@@ -212,10 +214,11 @@ double XQBoard::outcome(int round) {
             threatsCount[target->GetPos().second][target->GetPos().first] -= 1;
             if (threatsCount[target->GetPos().second][target->GetPos().first] == 0) {
                 res -= target->Val();
+                safeAttackCount -= 1;
             }
         }
     }
-    return res;
+    return 2*res/(safeAttackCount+1);
 }
 
 int XQBoard::edgeType(int x, int y) const {

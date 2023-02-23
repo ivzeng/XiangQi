@@ -72,7 +72,7 @@ Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * boa
             minSc = curSc;
             minIdx = i;
         }
-        // cout << moves[i]->Rep() << ' ' << curSc << endl;
+        //cout << moves[i]->Rep() << ' ' << curSc << endl;
         moves[i]->Undo();
         moves[i]->RSet(board);
     }
@@ -128,7 +128,7 @@ Move * Computer1::decide(const string & cmd, std::vector<std::unique_ptr<Move>> 
     if (cmd != "m" && cmd != "") {
         return nullptr;
     }
-    return dfsMoveSearch(moves, board, round, 20);
+    return dfsMoveSearch(moves, board, round, 23);
 }
 
 /**  Computer 2  **/
@@ -142,7 +142,7 @@ Move * Computer2::decide(const string & cmd, std::vector<std::unique_ptr<Move>> 
     if (cmd != "m" && cmd != "") {
         return nullptr;
     }
-    return dfsMoveSearch(moves, board, round, 12);
+    return dfsMoveSearch(moves, board, round, 18);
 }
 
 double Computer2::outcome(Board * board, double score, int round, Move * move) const {
