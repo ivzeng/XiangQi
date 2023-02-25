@@ -23,7 +23,8 @@ class Board {
     virtual void getMoves(int round, std::vector<std::unique_ptr<Move>> & moves, int mode = 0) = 0;
     virtual void info(std::string & m, const Msg & msg) = 0;
     virtual int pMoveIdx(int round) const = 0;
-    virtual double outcome(int round) = 0;
+    virtual double outcome0(int round) = 0;
+    virtual double outcome1(int round) = 0;
 
     public:
 
@@ -47,7 +48,7 @@ class Board {
     int PMoveIdx(int round) const;
 
     // computes the outcome of a player at current stage
-    double Outcome(int round);
+    double Outcome(int round, int mode = 0);
 };
 
 // XiangQi Board //
@@ -74,7 +75,8 @@ class XQBoard : public Board {
     int width() const;
     int height() const;
     int pMoveIdx(int round) const override;
-    double outcome(int round) override;
+    double outcome0(int round) override;
+    double outcome1(int round) override;
     int edgeType(int x, int y) const;
 
     // move analysis / scanning

@@ -32,8 +32,16 @@ int Board::PMoveIdx(int round) const {
     return pMoveIdx(round);
 }
 
-double Board::Outcome(int round) {
-    return outcome(round);
+double Board::Outcome(int round, int mode) {
+    switch (mode)
+    {
+    case 1:
+        return outcome1(round);
+        break;
+    
+    default:
+        return outcome0(round);
+    }
 }
 
 
@@ -184,7 +192,7 @@ int XQBoard::pMoveIdx(int round) const {
     return round%2;
 }
 
-double XQBoard::outcome(int round) {
+double XQBoard::outcome0(int round) {
     double res = 0;
     int safeAttackCount = 0;
     int threatsCount [10][9] {0};
@@ -221,6 +229,22 @@ double XQBoard::outcome(int round) {
     return 2*res/(safeAttackCount+1);
 }
 
+
+double XQBoard::outcome1(int round) {
+    vector<unique_ptr<Move>> selfMoves{};
+    vector<unique_ptr<Move>> otherMoves{};
+    getMoves(round, selfMoves);
+    getMoves(round+1, otherMoves);
+    double res = 0;
+    for (const unique_ptr<Move> & move : selfMoves) {
+        res += move->Outcome();
+    }
+    for (const unique_ptr<Move> & move : otherMoves) {
+        res -= move->Outcome();
+    }
+    return res;
+}
+
 int XQBoard::edgeType(int x, int y) const {
     const int h = height()-1;
     const int w = width()-1;
@@ -246,6 +270,7 @@ int XQBoard::edgeType(int x, int y) const {
 
 void XQBoard::getMoves(int round, vector<unique_ptr<Move>> & moves, int mode)  {
     int col = pMoveIdx(round);
+    moves.reserve(40);
     for (const unique_ptr<XQPiece> & p : pieces[col]) {
         if (p->Valid()) { 
             scan(moves, *p, mode);

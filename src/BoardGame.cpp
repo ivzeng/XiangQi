@@ -28,11 +28,12 @@ void BoardGame::UpdateRMsg(string & m) const {
 
 void BoardGame::init() {
     state = make_unique<State_Default>();
+    playerType.reserve(5);
     playerType.emplace_back("h");
     playerType.emplace_back("c0");
     playerType.emplace_back("c1");
     playerType.emplace_back("c2");
-
+    playerType.emplace_back("c3");
 }
 
 void BoardGame::resetPlayers() {
