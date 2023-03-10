@@ -74,6 +74,8 @@ class XQMove : public Move {
     std::vector<Item *> items() const override;
 
     public:
+
+    // Constructor / Destructor
     XQMove (const std::pair<int, int> & from, const std::pair<int, int> & to, XQPiece * target, XQPiece * captured = nullptr);
     ~XQMove() override;
 };

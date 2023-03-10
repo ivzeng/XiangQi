@@ -82,6 +82,8 @@ Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * boa
 /**    Human    **/
 Human::Human() : Player{} {}
 
+Human::~Human() {}
+
 std::string Human::rep() {
     return "human";
 }
@@ -111,6 +113,7 @@ Move * Computer::decide(const string & cmd, std::vector<std::unique_ptr<Move>> &
 
 /**   Computer 0   **/
 Computer0::Computer0() : Computer{} {}
+Computer0::~Computer0() {}
 
 string Computer0::rep() {
     return "computer0";
@@ -123,6 +126,7 @@ int Computer0::depth() const {
 
 /**  Computer 1  **/
 Computer1::Computer1() : Computer{} {}
+Computer1::~Computer1() {}
 
 string Computer1::rep() {
     return "computer1";
@@ -133,7 +137,8 @@ int Computer1::depth() const {
 }
 
 /**  Computer 2  **/
-Computer2::Computer2() : Computer{} {} 
+Computer2::Computer2() : Computer{} {}
+Computer2::~Computer2() {}
 
 string Computer2::rep() {
     return "computer2";
@@ -154,7 +159,9 @@ double Computer2::outcome(Board * board, double score, int round, Move * move) c
 }
 
 /**  Computer 3  **/
-Computer3::Computer3() : Computer{} {} 
+Computer3::Computer3() : Computer{} {}
+
+Computer3::~Computer3() {}
 
 string Computer3::rep() {
     return "computer3";

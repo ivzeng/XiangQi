@@ -43,17 +43,18 @@ class Player {
 };
 
 class Human : public Player {
-    // function
+    /**   Functions   **/
     std::string rep() override;
     Move * decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board * board, int round) override;
     public:
     Human();
+    ~Human() override;
 
 };
 
 class Computer : public Player {
     
-    // derived functions
+    /**   Functions   **/
     protected:
     Move * decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board * board, int round) override;
     virtual int depth() const = 0;
@@ -68,37 +69,43 @@ class Computer : public Player {
 
 class Computer0 : public Computer {
 
-    // derived functions
+    /**   Functions   **/
     std::string rep() override;
     int depth() const override;
 
     public:
     Computer0();
+    ~Computer0();
 };
 
 class Computer1 : public Computer {
-    // derived functions
+    /**   Functions   **/
     std::string rep() override;
     int depth() const override;
 
     public:
     Computer1();
+    ~Computer1() override;
 };
 
 class Computer2: public Computer {
+    /**   Functions   **/
     std::string rep() override;
     int depth() const override;
     double outcome(Board * board, double score, int round, Move * move) const override;
     public:
     Computer2();
+    ~Computer2() override;
 };
 
 class Computer3: public Computer {
+    /**   Functions   **/
     std::string rep() override;
     int depth() const override;
     double outcome(Board * board, double score, int round, Move * move) const override;
     public:
     Computer3();
+    ~Computer3();
 };
 
 std::unique_ptr<Player> makePlayer(int type);

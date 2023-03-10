@@ -21,15 +21,19 @@ class Move;
 // managing input / output
 class IO {
 
+    /**   Functions  **/
     virtual void show(const std::string & m) = 0;
     virtual int read(std::string & s) = 0;
 
     public:
+    // Constructor / Destructor
     IO();
+    virtual ~IO() = 0;
 
-    // Prints m
+    // Prints string m
     void Show(const std::string & m);
-    // reads a string
+
+    // reads a string and stores it in s
     int Read(std::string & s);
 };
 
@@ -42,7 +46,9 @@ class CIO : public IO {
     int read(std::string & s) override;
 
     public:
+    // Constructor / Destructor
     CIO(std::istream & in, std::ostream & out);
+    ~CIO();
     
 };
 

@@ -67,7 +67,9 @@ class XQPiece : public Item {
     void setCol(int col);
     public:
 
+    // Constructor / Destructor
     XQPiece();
+    ~XQPiece();
 
     // initializes
     void Init(int type, int colour, const std::pair<int,int> & pos);

@@ -4,6 +4,8 @@
 
 using namespace std;
 
+
+/**   State   ***/
 State::State() : curState{0}, cis{}, ucis{} {
     init();
 }
@@ -50,4 +52,7 @@ void State::UpdateCmds(string & m) {
     }
 }
 
+
+/***   State_Default   ***/
 State_Default::State_Default() : State{} {}
+State_Default::~State_Default() {}

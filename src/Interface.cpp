@@ -25,6 +25,8 @@ void Interface::init() {}
 CInterface::CInterface(char type) : Interface{type}, io{make_unique<CIO>(cin, cout)} {
 }
 
+CInterface::~CInterface() {}
+
 int CInterface::handleEvents() {
     while (!game->Exited()) {
         string msg {};

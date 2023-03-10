@@ -28,6 +28,8 @@ bool Item::Valid() const {
 
 XQPiece::XQPiece() : Item{}, type{0}, status{0}, colour{-1}, pos{-1,-1} {}
 
+XQPiece::~XQPiece() {}
+
 
 void XQPiece::Init(int t, int col, int x, int y) {
     setType(t);

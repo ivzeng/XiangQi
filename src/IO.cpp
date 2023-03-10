@@ -5,6 +5,8 @@ using namespace std;
 
 IO::IO() {}
 
+IO::~IO() {}
+
 void IO::Show(const string & m) {
     show(m);
 }
@@ -19,6 +21,8 @@ int IO::Read(string & s) {
 
 //  IO_Std  //
 CIO::CIO(istream & in, ostream & out) : IO{}, in{in}, out{out} {}
+
+CIO::~CIO() {}
 
 void CIO::show(const string & m) {
     out << m;
