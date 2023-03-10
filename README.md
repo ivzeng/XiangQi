@@ -38,5 +38,9 @@ A XiangQi terminal interface and engine
 
 - Start considering GUI components
 
+- Start working on BFS move searching (Hash function for the board)
+
+
+
 ---
 Have fun!
