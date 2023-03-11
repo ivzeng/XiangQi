@@ -1,5 +1,5 @@
 # XiangQi
-A XiangQi interface with AI player
+A XiangQi interface with AI players
 
 # Comands List
 
