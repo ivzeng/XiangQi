@@ -1,5 +1,5 @@
 # XiangQi
-A XiangQi terminal interface and engine
+A XiangQi interface with AI player
 
 # Comands List
 
