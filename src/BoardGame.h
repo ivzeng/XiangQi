@@ -21,7 +21,10 @@
 #define CMD_Undo    21
 #define CMD_Hint    22
 
-
+#ifndef INIT_LANGUAGE
+//  1 for Chinese; 2 for English
+#define INIT_LANGUAGE 1
+#endif
 
 class Player;
 class Move;
@@ -29,56 +32,79 @@ class Board;
 class State;
 class Msg;
 
-//  BoardGame Class  //
-// owns the board;
-// analyzes / processes round and moves.
+//     BoardGame Class     //
+// A superclass that owns the board and other game infomation. It can handle the game and produce relative messages
 
 class BoardGame {
     protected:
-    // fields
+    /**  Fields  **/
     std::unique_ptr<State> state;
-    int round;
+    std::unique_ptr<Msg> msg;
+    std::vector<std::string> playerType;
+    std::vector<int> scores;
     std::unique_ptr<Board> board;
+
+    int round;
     std::vector<std::unique_ptr<Move>> moves;
     std::vector<std::unique_ptr<Move>> hist;
     std::vector<std::unique_ptr<Player>> players;
-    std::vector<int> scores;
-    std::vector<std::string> playerType;
-    std::unique_ptr<Msg> msg;
 
-    virtual void init();        // init player type
-    virtual void resetPlayers();      // resets players 
-    virtual void resetGame();      // resets board and history; updates moves 
+    /**  Functions  **/
+    
+    virtual void init();
+
     virtual int proc(const std::string & cmd, std::string & fb);
+
+    // starts a game
     virtual void start(std::string & fb);
+
     bool pSetted();
+
+    virtual void resetPlayers();
+
+    virtual void resetGame();
+
     virtual int updateMoves();
+
+    // sets m into a string of moves' names, separated by a space
     void movesRep(std::string & m, const std::vector<std::unique_ptr<Move>> & moves) const;
+
     virtual void doRound(Move * move);
+
     virtual int undoRound();
-    virtual int analyze() const;  // analyzes the winner
+
+    // analyzes the winner
+    virtual int analyze() const;
 
     virtual int gameRound() const;
+    
     virtual int pMoveIdx() const;
-    virtual int ePlayerCount() const = 0;       // returns the expected number of players
+    
+    // returns the expected number of players
+    virtual int ePlayerCount() const = 0;
 
     virtual void updateRMsg(std::string & m) const;
+
     virtual void updateCmd(std::string & m) const;
 
     
     public:
+    
     BoardGame();
     virtual ~BoardGame() = 0;
+
     // processes a command
-    // return type: -1: invalid command, 0: ... 
-    int Proc(const std::string & cmd, std::string & fb);    // processes a cmd and puts the feedback message into fb. 
+    int Proc(const std::string & cmd, std::string & fb);
+
+    // checks if the game is in the 'end' state
     bool Exited() const;
 
-    void UpdateRMsg(std::string & m) const;                 // updates message requesting a command
+    // updates message, which requests for a command
+    void UpdateRMsg(std::string & m) const;                 
 };
 
 
-// XiangQi //
+//    XiangQi    //
 class XQBoard;
 class XiangQi : public BoardGame{
     
