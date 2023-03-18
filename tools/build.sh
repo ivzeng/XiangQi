@@ -2,9 +2,10 @@
 
 # Build the program
 
-# usage: 
-#   build.sh [OPTION]
-#   build.sh clean [EXEC_DIRECTORY]
+# usage:
+#   ./build.sh usage
+#   ./build.sh [OPTION] [EXEC_DIRECORY]
+#   ./build.sh clean [EXEC_DIRECTORY]
 
 #   OPTION:
 #       -l[ce]
@@ -14,8 +15,17 @@
 #           set the dirctory of the EXEC
 
 usage() {
-    echo "usage: build.sh [OPTION] | build.sh clean [EXEC_DIRECTORY]"
-    echo "OPTION must has unique type"
+    tab="   "
+    echo "usage:"
+    echo "$tab./build.sh usage"
+    echo "$tab./build.sh [OPTION] [EXEC_DIRECORY]"
+    echo "$tab./build.sh clean [EXEC_DIRECTORY]"
+    echo ""
+    echo "OPTION"
+    echo "$tab-l[ce]$tab set initial language: Chinese / English"
+    echo ""
+    echo "OPTION need to be unique in type"
+    echo "$tab(for example, do not execute build.sh with both -lc and -le)"
     exit 1
 }
 
@@ -25,6 +35,10 @@ if [ $# -ge 1 ] && [ $1 == "clean" ]; then
         rm $2/*.exe
     fi
     exit 0
+fi
+
+if [ $# -ge 1 ] && [ $1 == "usage" ]; then
+    usage
 fi
 
 
