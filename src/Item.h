@@ -5,18 +5,27 @@
 #include <vector>
 #include <memory>
 
+/*************      Item Classes      **************
+ *  Classes that records item/piece's info
+ * 
+ *  Used for:
+ *      managing individual's information
+ *      determining individual's value
+ * 
+ **************************************************/
+
 class Move;
 class Board;
 
+///****     Item Superclass     ****///
 
-//    Item Class   //
 class Item {
     /**   Fields   **/
 
-    /**   Functions   **/
-    virtual double val() const = 0;    
-    virtual double val(const std::pair<int,int> & at) const = 0;    
-    virtual bool valid() const = 0;
+    /**   Functions   **/  
+    virtual bool valid() const                              = 0;
+    virtual double val() const                              = 0;    
+    virtual double val(const std::pair<int,int> & at) const = 0;  
 
     public:
     Item();
@@ -33,12 +42,17 @@ class Item {
 
 };
 
-//    XiangQi Pieces    //
-// handles move-searching; 
-// as one of the following:
-//   Jiang | Shi | Ju | Pao | Ma | Xiang | Bing
 
-// piece types
+
+// Chinese Chess Pieces
+//      Jiang   (General) 
+//      | Shi   (Advisor) 
+//      | Ju    (Chariot) 
+//      | Pao   (Cannon)
+//      | Ma    (Horse)
+//      | Xiang (Elephant) 
+//      | Bing  (Pawn)
+
 #define XQPIECE_Jiang   1
 #define XQPIECE_Shi     2
 #define XQPIECE_Ju      3
@@ -48,6 +62,7 @@ class Item {
 #define XQPIECE_Bing    7
 
 
+///****   Chinese Chess Piece Superclass   ****///
 
 class XQPiece : public Item {
     /**   Fields   **/
@@ -60,20 +75,21 @@ class XQPiece : public Item {
 
     /**   Functions   **/
 
-    double val() const override;
-    double val(const std::pair<int,int> & at) const override;
-    bool valid() const override;
     void setType(int type);
     void setCol(int col);
-    public:
 
-    // Constructor / Destructor
+    // returns the value of the current piece
+    double val() const override;
+
+    // returns the value of the current piece at position [at]
+    double val(const std::pair<int,int> & at) const override;
+
+    // determines if the piece is valid (i.e. it is not captured)
+    bool valid() const override;
+
+    public:
     XQPiece();
     ~XQPiece();
-
-    // initializes
-    void Init(int type, int colour, const std::pair<int,int> & pos);
-    void Init(int type, int colour, int x, int y);
 
     // returns piece type
     int Type() const;
@@ -90,5 +106,10 @@ class XQPiece : public Item {
     // sets piece positions
     void SetPos(int x, int y);
     void SetPos(const std::pair<int,int> & pos);
+
+    // initializes the piece
+    void Init(int type, int colour, const std::pair<int,int> & pos);
+    void Init(int type, int colour, int x, int y);
 };
+
 #endif

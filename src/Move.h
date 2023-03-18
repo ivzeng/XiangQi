@@ -5,23 +5,36 @@
 #include <string>
 #include <memory>
 
+/*************      Move Classes      **************
+ *  Classes that indicates a step/move in a Game
+ * 
+ *  Used for:
+ *      updating the board (by doing/undoing)
+ *      determining the move's (short-run) payoff
+ * 
+ **************************************************/
+
 class BoardGame;
 class Board;
 class Item;
 
+class XQPiece;
+
+
+///****     Move Superclass     ****///
 
 class Move {
     /**   Fields   **/
 
     /**   Functions   **/
-    virtual void proc() = 0;
-    virtual void undo() = 0;
-    virtual void set(Board * board) = 0;
-    virtual void rSet(Board * board) = 0;
-    virtual std::string rep() = 0;
-    virtual std::unique_ptr<Move> copy() const = 0;
-    virtual double outcome() const = 0;
-    virtual std::vector<Item *> items() const = 0;
+    virtual void proc()                         = 0;
+    virtual void undo()                         = 0;
+    virtual void set(Board * board)             = 0;
+    virtual void rSet(Board * board)            = 0;
+    virtual std::string rep()                   = 0;
+    virtual std::unique_ptr<Move> copy() const  = 0;
+    virtual double outcome() const              = 0;
+    virtual std::vector<Item *> items() const   = 0;
 
     public:
     // constructor / destructor
@@ -55,15 +68,19 @@ class Move {
 };
 
 
-//  XiangQi Move //
-class XQPiece;
+
+///****     Chinese Chess Move Superclass     ****///
 
 class XQMove : public Move {
+    /**   Fields   **/
+
     std::pair<int, int> from;
     std::pair<int, int> to;
     XQPiece * piece;
     XQPiece * target;
-    
+
+    /**   Functions   **/
+
     void proc() override;
     void undo() override;
     void set(Board * board) override;
@@ -76,7 +93,10 @@ class XQMove : public Move {
     public:
 
     // Constructor / Destructor
-    XQMove (const std::pair<int, int> & from, const std::pair<int, int> & to, XQPiece * target, XQPiece * captured = nullptr);
+    XQMove (
+        const std::pair<int, int> & from, const std::pair<int, int> & to,
+        XQPiece * target, XQPiece * captured = nullptr
+    );
     ~XQMove() override;
 };
 

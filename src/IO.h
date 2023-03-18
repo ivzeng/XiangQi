@@ -12,13 +12,23 @@
 #include <vector>
 #include <map>
 
+/**************      IO Classes      ***************
+ *  Classes that handle user I/O
+ * 
+ *  Used for:
+ *      getting commands
+ *      showing messages
+ * 
+ **************************************************/
+
+
 class BoardGame;
 class Board;
 class Item;
 class Move;
 
-//    IO class    //
-// managing input / output
+///****     IO Superclass     ****///
+
 class IO {
 
     /**   Functions  **/
@@ -30,26 +40,30 @@ class IO {
     IO();
     virtual ~IO() = 0;
 
-    // Prints string m
+    // prints string m
     void Show(const std::string & m);
 
     // reads a string and stores it in s
     int Read(std::string & s);
 };
 
-// std input / output
+
+///****     Console IO Subclass     ****///
+
 class CIO : public IO {
+    /**   Fields  **/
+
     std::istream & in;
     std::ostream & out;
+
+    /**   Functions  **/
 
     void show(const std::string & m);
     int read(std::string & s) override;
 
     public:
-    // Constructor / Destructor
     CIO(std::istream & in, std::ostream & out);
-    ~CIO();
-    
+    ~CIO(); 
 };
 
 

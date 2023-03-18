@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 
+// States Variables
 #define STATE_End       0
 #define STATE_Main      1
 #define STATE_Setting   2
@@ -16,8 +17,18 @@
 #define STATE_Setting_3 7
 
 
-/***   State   ***/
-// handle 
+/************      State Classes      *************
+ *  Classes that manages states and commands
+ * 
+ *  Used for:
+ *      handling events (commands and states)
+ *      returning instruction based on the command
+ *      providing helps for commands
+ * 
+ **************************************************/
+
+///****     State Superclass     ****///
+
 class State {
 
     /**   Fields   **/
@@ -51,7 +62,8 @@ class State {
 };
 
 
-/***   Default State Class   ***/
+///****    Default State Subclass     ****///
+
 class State_Default : public State {
     public:
     State_Default();

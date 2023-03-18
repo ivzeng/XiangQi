@@ -42,7 +42,10 @@ vector<Item *> Move::Items() const {
 
 
 //   XQMove   //
-XQMove::XQMove(const pair<int, int> & from, const pair<int, int> & to, XQPiece * piece, XQPiece * target) : from{from}, to{to}, piece{piece}, target{target} {}
+XQMove::XQMove(
+    const pair<int, int> & from, const pair<int, int> & to,
+    XQPiece * piece, XQPiece * target
+) : from{from}, to{to}, piece{piece}, target{target} {}
 
 XQMove::~XQMove() {}
 
@@ -72,7 +75,10 @@ void XQMove::rSet(Board * board) {
 }
 
 string XQMove::rep() {
-    return string{char(from.first+'a'), char(from.second + '0'), char(to.first+'a'), char(to.second+'0')};
+    return string{
+        char(from.first+'a'), char(from.second + '0'),
+        char(to.first+'a'), char(to.second+'0')
+    };
 }
 
 unique_ptr<Move> XQMove::copy() const {

@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 
-// command lists
+//****     Commands     *****//
 #define CMD_End     0
 #define CMD_ToMain  1
 #define CMD_ToS     2
@@ -21,10 +21,22 @@
 #define CMD_Undo    21
 #define CMD_Hint    22
 
+//****     Initial Language     *****//
 #ifndef INIT_LANGUAGE
 //  1 for Chinese; 2 for English
 #define INIT_LANGUAGE 1
 #endif
+
+/**********      BoardGame Classes      ************  
+ *  Classes that owns game infomation
+ * 
+ *  Used for:
+ *      processing games
+ *      handling commands
+ *      updating feedback messages
+ *      showing status
+ * 
+ **************************************************/
 
 class Player;
 class Move;
@@ -32,8 +44,9 @@ class Board;
 class State;
 class Msg;
 
-//     BoardGame Class     //
-// A superclass that owns the board and other game infomation. It can handle the game and produce relative messages
+class XQBoard;
+
+///****     BoardGame Superclass     ****///
 
 class BoardGame {
     protected:
@@ -89,7 +102,7 @@ class BoardGame {
 
     
     public:
-    
+
     BoardGame();
     virtual ~BoardGame() = 0;
 
@@ -104,17 +117,22 @@ class BoardGame {
 };
 
 
-//    XiangQi    //
-class XQBoard;
+
+///****     Chinese Chess Subclass     ****///
+
 class XiangQi : public BoardGame{
-    
+
+    /**  Functions  **/
     void init() override;
+
     int ePlayerCount() const override;
+
     public:
     XiangQi();
     
 };
 
-
+// constructs BoardGame class based on type 
 std::unique_ptr<BoardGame> MakeBoardGame(char type);
+
 #endif

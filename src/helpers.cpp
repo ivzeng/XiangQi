@@ -32,7 +32,9 @@ double exchangeOutcome(double valueFrom, double valueTo) {
     return valueTo - pow(valueFrom, 2)*pow(valueTo, 0.5)/1000;
 }
 
-double expectedOutcome(int l, std::priority_queue<double> & outcomes, double factor){
+double expectedOutcome(
+    int l, std::priority_queue<double> & outcomes, double factor
+){
     double res = 0;
     double remain = 1;
     if ((int)outcomes.size() < l) {

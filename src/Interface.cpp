@@ -22,8 +22,8 @@ void Interface::init() {}
 
 
 //  CInterface  //
-CInterface::CInterface(char type) : Interface{type}, io{make_unique<CIO>(cin, cout)} {
-}
+CInterface::CInterface(char type) : 
+    Interface{type}, io{make_unique<CIO>(cin, cout)} {}
 
 CInterface::~CInterface() {}
 

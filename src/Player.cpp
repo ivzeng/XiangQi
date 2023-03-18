@@ -18,15 +18,22 @@ string Player::Rep() {
     return rep();
 }
 
-Move * Player::Decide(const string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board * board, int round) {
+Move * Player::Decide(
+    const string & cmd, std::vector<std::unique_ptr<Move>> & moves,
+    Board * board, int round
+) {
     return decide(cmd, moves, board, round);
 }
 
-double Player::outcome(Board * board, double score, int round, Move * move) const {
+double Player::outcome(
+    Board * board, double score, int round, Move * move
+) const {
     return score;
 }
 
-double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth) const {
+double Player::dfsMoveAnalysis(
+    Board * board, double score, int round, int depth
+) const {
     vector<unique_ptr<Move>> moves{};
     board->GetMoves(round, moves);
     int l = moves.size();
@@ -55,7 +62,10 @@ double Player::dfsMoveAnalysis(Board * board, double score, int round, int depth
     return expectedOutcome(10, scores, 0.7);
 }
 
-Move * Player::dfsMoveSearch(const vector<unique_ptr<Move>> & moves, Board * board, int round, int depth) const {
+Move * Player::dfsMoveSearch(
+    const vector<unique_ptr<Move>> & moves, Board * board,
+    int round, int depth
+) const {
     if (moves.size() == 0) {
         return nullptr;
     }
@@ -88,7 +98,9 @@ std::string Human::rep() {
     return "human";
 }
 
-Move * Human::decide(const string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board * board, int round) {
+Move * Human::decide(
+    const string & cmd, std::vector<std::unique_ptr<Move>> & moves,
+    Board * board, int round) {
     if (cmd == "hint") {
         return dfsMoveSearch(moves, board, round, 10);
     }
@@ -104,7 +116,10 @@ Move * Human::decide(const string & cmd, std::vector<std::unique_ptr<Move>> & mo
 Computer::Computer() : Player{} {}
 Computer::~Computer() {}
 
-Move * Computer::decide(const string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board * board, int round) {
+Move * Computer::decide(
+    const string & cmd, std::vector<std::unique_ptr<Move>> & moves,
+    Board * board, int round
+) {
     if (cmd != "m" && cmd != "") {
         return nullptr;
     }
@@ -148,7 +163,9 @@ int Computer2::depth() const {
     return 18;
 }
 
-double Computer2::outcome(Board * board, double score, int round, Move * move) const {
+double Computer2::outcome(
+    Board * board, double score, int round, Move * move
+) const {
     move->Proc();
     move->Set(board);
     double res = score - (double) board->Outcome(round+1);
@@ -171,7 +188,9 @@ int Computer3::depth() const {
     return 18;
 }
 
-double Computer3::outcome(Board * board, double score, int round, Move * move) const {
+double Computer3::outcome(
+Board * board, double score, int round, Move * move
+) const {
     move->Proc();
     move->Set(board);
     double res = -board->Outcome(round, 1);

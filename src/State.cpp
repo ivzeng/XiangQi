@@ -16,11 +16,23 @@ void State::init() {
     curState = 1;
     cis = vector<map<string, int>>(5);
     cis[STATE_End] = {};
-    cis[STATE_Main] = {{"end", CMD_End}, {"showb", CMD_ShowB}, {"set", CMD_ToS}, {"play", CMD_ToPS}, {"resetp", CMD_ResetP}};
-    cis[STATE_Setting] = {{"back", CMD_ToMain}, {"setl", CMD_SetL}};
-    cis[STATE_PSetting] = {{"back", CMD_ToMain}};
-    cis[STATE_Game] = {{"end", CMD_ToMain}, {"hist", CMD_ShowH}, {"moves", CMD_ShowM}, {"undo", CMD_Undo}};
-    ucis = {{"showc", CMD_ShowC}};
+    cis[STATE_Main] = {
+        {"end", CMD_End}, {"showb", CMD_ShowB}, {"set", CMD_ToS},
+        {"play", CMD_ToPS}, {"resetp", CMD_ResetP}
+    };
+    cis[STATE_Setting] = {
+        {"back", CMD_ToMain}, {"setl", CMD_SetL}
+    };
+    cis[STATE_PSetting] = {
+        {"back", CMD_ToMain}
+    };
+    cis[STATE_Game] = {
+        {"end", CMD_ToMain}, {"hist", CMD_ShowH},
+        {"moves", CMD_ShowM}, {"undo", CMD_Undo}
+    };
+    ucis = {
+        {"showc", CMD_ShowC}
+    };
 }
 
 int State::GetState() const {

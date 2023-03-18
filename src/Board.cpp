@@ -268,7 +268,9 @@ int XQBoard::edgeType(int x, int y) const {
 }
 
 
-void XQBoard::getMoves(int round, vector<unique_ptr<Move>> & moves, int mode)  {
+void XQBoard::getMoves(
+    int round, vector<unique_ptr<Move>> & moves, int mode
+)  {
     int col = pMoveIdx(round);
     moves.reserve(40);
     for (const unique_ptr<XQPiece> & p : pieces[col]) {
@@ -278,7 +280,10 @@ void XQBoard::getMoves(int round, vector<unique_ptr<Move>> & moves, int mode)  {
     }
 }
 
-void XQBoard::scan(vector<unique_ptr<Move>> & moves, const XQPiece & p, int mode) {
+void XQBoard::scan(
+    vector<unique_ptr<Move>> & moves, 
+    const XQPiece & p, int mode
+) {
     switch (p.Type())
     {
     case XQPIECE_Jiang:
@@ -307,7 +312,11 @@ void XQBoard::scan(vector<unique_ptr<Move>> & moves, const XQPiece & p, int mode
     }
 }
 
-void XQBoard::jScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col, int mode) {
+void XQBoard::jScan(
+    vector<unique_ptr<Move>> & moves,
+    const pair<int,int> & pos,
+    int col, int mode
+) {
     int ub = 2 + col*7;
     int lb = 0 + col*7;
     pair<int, int> to {pos};
@@ -329,7 +338,11 @@ void XQBoard::jScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos,
     }
 }
 
-void XQBoard::sScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col, int mode) {
+void XQBoard::sScan(
+    vector<unique_ptr<Move>> & moves, 
+    const pair<int,int> & pos, 
+    int col, int mode
+) {
     if (pos.first == 4) {
         insertMove(moves, pos, {pos.first-1, pos.second-1}, col, mode);
         insertMove(moves, pos, {pos.first+1, pos.second-1}, col, mode);
@@ -341,22 +354,34 @@ void XQBoard::sScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos,
     }
 }
 
-void XQBoard::lScan(vector<unique_ptr<Move>> & moves, const pair<int,int> & pos, int col, int mode, int skip) {
+void XQBoard::lScan(
+    vector<unique_ptr<Move>> & moves, 
+    const pair<int,int> & pos,
+    int col, int mode, int skip
+) {
     int w = width();
     int h = height();
     pair<int,int>to{pos};
     to.first += 1;
-    for (int pass = 0; to.first < w && lInsertMove(moves, pos, to, col, pass, mode, skip); to.first += 1);
+    for (int pass = 0; to.first < w && lInsertMove(moves, pos, to, col, pass, mode, skip);
+            to.first += 1);
     to.first = pos.first-1;
-    for (int pass = 0; to.first >= 0 && lInsertMove(moves, pos, to, col, pass, mode, skip); to.first -= 1);
+    for (int pass = 0; to.first >= 0 && lInsertMove(moves, pos, to, col, pass, mode, skip);
+            to.first -= 1);
     to.first = pos.first;
     to.second = pos.second+1;
-    for (int pass = 0; to.second < h && lInsertMove(moves, pos, to, col, pass, mode, skip); to.second += 1);
+    for (int pass = 0; to.second < h && lInsertMove(moves, pos, to, col, pass, mode, skip);
+            to.second += 1);
     to.second = pos.second-1;
-    for (int pass = 0; to.second >= 0 && lInsertMove(moves, pos, to, col, pass, mode, skip); to.second -= 1);
+    for (int pass = 0; to.second >= 0 && lInsertMove(moves, pos, to, col, pass, mode, skip);
+            to.second -= 1);
 }
 
-void XQBoard::mScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col, int mode) {
+void XQBoard::mScan(
+    std::vector<std::unique_ptr<Move>> & moves,
+    const std::pair<int, int> & pos, int col,
+    int mode
+) {
     int w = width();
     int h = height();
     if (pos.first + 2 < w && !get(pos.first+1, pos.second)) {
@@ -393,7 +418,11 @@ void XQBoard::mScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<
     }
 }
 
-void XQBoard::xScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col, int mode) {
+void XQBoard::xScan(
+    std::vector<std::unique_ptr<Move>> & moves, 
+    const std::pair<int, int> & pos, int col,
+    int mode
+) {
     int w = width();
     int h = height();
     if (pos.second+2 < h && (pos.second+2)/5 == pos.second/5) {
@@ -414,7 +443,9 @@ void XQBoard::xScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<
     }
 }
 
-void XQBoard::bScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col, int mode) {
+void XQBoard::bScan(
+    std::vector<std::unique_ptr<Move>> & moves, const std::pair<int, int> & pos, int col, int mode
+) {
     int dir = 1-col*2;
     if (pos.second + dir >= 0 && pos.second + dir < height()) {
         insertMove(moves, pos, {pos.first, pos.second+dir}, col, mode);
@@ -430,7 +461,10 @@ void XQBoard::bScan(std::vector<std::unique_ptr<Move>> & moves, const std::pair<
 }
 
 
-void XQBoard::insertMove(vector<unique_ptr<Move>> & moves, const pair<int,int> & from, const pair<int,int> & to, int col, int mode, bool isK) {
+void XQBoard::insertMove(
+    vector<unique_ptr<Move>> & moves, const pair<int,int> & from, const pair<int,int> & to, 
+    int col, int mode, bool isK
+) {
     XQPiece * piece = get(from);
     XQPiece * target = get(to);
     if (!target) {
@@ -452,7 +486,10 @@ void XQBoard::insertMove(vector<unique_ptr<Move>> & moves, const pair<int,int> &
     set(to, target);
 }
 
-bool XQBoard::lInsertMove(vector<unique_ptr<Move>> & moves, const pair<int,int> & from, const pair<int,int> & to, int col, int & pass, int mode, int skip) {
+bool XQBoard::lInsertMove(
+    vector<unique_ptr<Move>> & moves, const pair<int,int> & from, const pair<int,int> & to,
+    int col, int & pass, int mode, int skip
+) {
     if(get(to)) {
             if (pass == skip) {
                 insertMove(moves, from, to, col, mode);
@@ -472,7 +509,8 @@ bool XQBoard::checkLPath(int col, int & pass, XQPiece * p) const {
         if (p->GetCol() == col) {
             return true;
         }
-        if ((pass == 1 && (p->Type() == XQPIECE_Jiang || p->Type() == XQPIECE_Ju)) || (pass == 2 && p->Type() == XQPIECE_Pao)) {
+        if ((pass == 1 && (p->Type() == XQPIECE_Jiang || p->Type() == XQPIECE_Ju)) 
+            || (pass == 2 && p->Type() == XQPIECE_Pao)) {
             return false;
         }
     }
