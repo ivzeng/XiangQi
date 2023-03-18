@@ -1,0 +1,15 @@
+showc
+play c1 c2
+hist
+moves
+m
+hist
+m
+end
+resetp
+set setl back
+play c1 back
+play c1
+showc
+end
+end
