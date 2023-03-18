@@ -83,5 +83,4 @@ if [ $language -ne 0 ]; then
     fi
 fi
 
-echo $variables $dirctory $exec
 make $(echo CPPFLAGS=$variables EXEC_DIRECTORY=$dirctory/ EXEC=$exec)

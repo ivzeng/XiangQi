@@ -274,7 +274,7 @@ int XiangQi::ePlayerCount() const {
 
 void XiangQi::init() {
     BoardGame::init();
-    msg = make_unique<Msg_XQ>();
+    msg = make_unique<Msg_XQ>(INIT_LANGUAGE-1);
     board = make_unique<XQBoard>();
 }
 
