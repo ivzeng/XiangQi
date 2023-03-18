@@ -1,20 +1,32 @@
 #! /bin/bash
 
-# usage: build.sh [OPTION]
-
 # Build the program
+
+# usage: 
+#   build.sh [OPTION]
+#   build.sh clean [EXEC_DIRECTORY]
+
 #   OPTION:
 #       -l[ce]
 #           set initial language: Chinese / English
 
-#       [OUTPUT_DIRECTORY]
+#       [EXEC_DIRECTORY]
 #           set the dirctory of the EXEC
 
 usage() {
-    echo "usage: build.sh [OPTION]"
+    echo "usage: build.sh [OPTION] | build.sh clean [EXEC_DIRECTORY]"
     echo "OPTION must has unique type"
-    exit -1
+    exit 1
 }
+
+if [ $# -ge 1 ] && [ $1 == "clean" ]; then
+    make clean
+    if [ $# -eq 2 ]; then
+        rm $2/*.exe
+    fi
+    exit 0
+fi
+
 
 language=0
 exec="中国象棋.exe"
@@ -26,7 +38,6 @@ for arg in $@; do
         ("-l"*)
             if [ $language -ne 0 ]; then
                 usage
-                exit -1 
             fi
             case $arg in
                 (-lc)
