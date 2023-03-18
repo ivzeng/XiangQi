@@ -1,46 +1,94 @@
-# XiangQi
-A XiangQi interface with AI players
+# Hello!
+### This is my 象棋 (Chinese Chess) program! Currently, it is a console application that provides a decent interface for Chinese Chess and some AI players implemented based on a dfs move-searching algorithm. I have been optimizing it by adding features for program data handling. Further, I will develop another move-searching algorithm with bfs, which I have already had its outline on paper. Even further, I will be working on a nice GUI for the program.
 
-# Comands List
+#
+## Build
+To compile and build the program, please use the `makefile` or the bash shell script `build.sh` under `tools` directory. 
 
-- showc: shows all avaliable commands for user at the current program state
+To see what `build.sh` can do, please run 
 
-- play: starts a game (and sets players if the players are not set)
+```
+tools/build.sh usage
+```
 
-- set: goes to setting
+By default, the compilation will give a program initially in Chinese, but you can run `build.sh` with `-le` to get a program in English, or you can simply set it in the setting page of the program.
 
-- setl: sets language
 
-- end: exits (at main menu) / return to the main manu (in game)
 
-- back: returns to the privious state
+## Play
 
-- h: human player
+When you execute the program, you will be in the main page. You can enter certain commands to do something. 
 
-- c[0-3]: computer player
+For example, 
 
-- hint: requests a move hint (human only)
+to start a game with an ai as the red side and you as the black side, you can enter:
+```
+play c1 h
+```
+or
+```
+play
+c2
+h
+```
 
-- m: makes a move (computer only)
+to set the language, you can enter:
+``` 
+set setl back
+```
 
-- undo: undoes a move
+to exit, just simply enter
 
-# TODO List
-- Get a better outcome function for Board
+```
+end
+```
 
-- Add an outcome function for Piece (from pos1 to pos2), other than the base value function
+### Here is a list of commands:
 
-- Complete C3 and make it better again
+- `showc`: show all avaliable commands for user at the current program state
+
+- `play`: start a game (and start setting players if any players is not set)
+
+- `set`: to setting
+
+- `setl`: set language to another one (Chinese or English)
+
+- `end`: exit (main page)  | stop the game and return to the main page (game)
+
+- `back`: return to the previous page
+
+- `hint`: request a hint (human player only)
+
+- `m`: make a move (computer only)
+
+- `undo`: undoes a move
+
+- `moves`: shows all valid moves of the play at current round
+
+### players:
+
+- `h`: human player
+
+- `c[0-3]`: computer player [0-3]
+
+---
+
+# TODO!!!
+- Comment [Interface/BoardGame/Player/IO].[h/cpp]
 
 - Optimize and simplify the code
 
-- Comment [Interface/BoardGame/Player/IO].[h/cpp]
+- Get a better outcome function for Board to make C3 smarter
 
-- Start considering GUI components
+- get a efficient hash function for the board
 
-- Start working on BFS move searching (Hash function for the board)
+- add functions that store program data locally and handle those data
+
+- Start thinking of BFS move searching and GUI components
+
+
 
 
 
 ---
-Have fun!
+## Have fun!
