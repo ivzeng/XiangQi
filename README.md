@@ -1,5 +1,5 @@
 # Hello!
-### This is my 象棋 (Chinese Chess) program! Currently, it is a console application that provides a decent interface for Chinese Chess and some AI players implemented based on a dfs move-searching algorithm. I have been optimizing it by adding features for program data handling. Further, I will develop another move-searching algorithm with bfs, which I have already had its outline on paper. Even further, I will be working on a nice GUI for the program.
+### This is my 象棋 (Chinese Chess) program! Currently, it is a console application that provides a decent interface for Chinese Chess and some AI players implemented based on a dfs move-searching algorithm. I have been optimizing it and I am planning to add features for program data handling. Further, I will develop another move-searching algorithm with bfs, which I have already had its outline on paper. Even further, I will be working on a nice GUI for the program.
 
 #
 ## Build
