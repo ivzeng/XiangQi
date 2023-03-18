@@ -9,7 +9,7 @@
 
 using namespace std;
 
-BoardGame::BoardGame() : state{nullptr}, round {0}, board{}, moves{}, hist{}, players{}, scores{}, playerType{}, msg{nullptr} {}
+BoardGame::BoardGame() : state{nullptr}, msg{nullptr}, playerType{}, scores{},  board{}, round {0}, moves{}, hist{}, players{} {}
 
 BoardGame::~BoardGame() {}
 
