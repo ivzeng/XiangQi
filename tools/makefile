@@ -1,16 +1,20 @@
 CXX=g++
-CXXFLAGS=-Wall -O3
+CXXFLAGS=-g -Wall -O3 -MMD
 CPPFLAGS=
 SRC_DIRECTORY= ../src/
 EXEC_DIRECTORY = ../
-OBJECTS = ChineseChess.o Interface.o BoardGame.o IO.o Player.o Board.o Item.o Move.o State.o Texts.o helpers.o
+SRC = $(wildcard ${SRC_DIRECTORY}*.cpp)
+OBJECTS = $(SRC:.cpp=.o)
+DEPENDS = $(SRC:.cpp=.d)
 EXEC = 中国象棋.exe
 
-${EXEC}: $(addprefix  ${SRC_DIRECTORY}, ${OBJECTS})
-	${CXX} $(addprefix ${SRC_DIRECTORY}, ${OBJECTS}) ${CXXFLAGS} ${CPPFLAGS} -o "${EXEC_DIRECTORY}${EXEC}"
+${EXEC}: ${OBJECTS}
+	${CXX} ${CXXFLAGS} ${CPPFLAGS} ${OBJECTS} -o "${EXEC_DIRECTORY}${EXEC}"
+
+-include ${DEPENDS}
 
 
 .PHONY: clean
 
 clean:
-	rm $(addprefix  ${SRC_DIRECTORY}, ${OBJECTS})
+	rm ${DEPENDS} ${OBJECTS}
