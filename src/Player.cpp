@@ -38,24 +38,20 @@ double Player::dfsMoveAnalysis(
     board->GetMoves(round, moves);
     int l = moves.size();
     if (l == 0) {
-        return -1000;
+        return -600;
     }
-    for (int i : {52, 40, 28, 20, 13, 7}) {
-        if (l > i) {
-            depth -= 1;
-        }
-    }
+    depth /= l;
     priority_queue<double> scores {};
-    if (depth <= 0) {
-        for (const unique_ptr<Move> & move :moves) {
+    if (depth <= l) {
+        for (const unique_ptr<Move> & move : moves) {
             scores.push(outcome(board, move->Outcome()-score, round, move.get()));
         }
         return expectedOutcome(20, scores);
     }
-    for (const unique_ptr<Move> & move :moves) {
+    for (const unique_ptr<Move> & move : moves) {
         move->Proc();
         move->Set(board);
-        scores.push(-dfsMoveAnalysis(board, move->Outcome()-score, round+1, depth-4));
+        scores.push(-dfsMoveAnalysis(board, move->Outcome()-score, round+1, depth));
         move->Undo();
         move->RSet(board);
     }
@@ -63,8 +59,7 @@ double Player::dfsMoveAnalysis(
 }
 
 Move * Player::dfsMoveSearch(
-    const vector<unique_ptr<Move>> & moves, Board * board,
-    int round, int depth
+    const vector<unique_ptr<Move>> & moves, Board * board, int round
 ) const {
     if (moves.size() == 0) {
         return nullptr;
@@ -77,7 +72,7 @@ Move * Player::dfsMoveSearch(
     for (int i = moves.size()-1; i >= 0; i -= 1) {
         moves[i]->Proc();
         moves[i]->Set(board);
-        double curSc = dfsMoveAnalysis(board, moves[i]->Outcome(), round+1, depth);
+        double curSc = dfsMoveAnalysis(board, moves[i]->Outcome(), round+1, operations());
         if (curSc <= minSc) {
             minSc = curSc;
             minIdx = i;
@@ -88,6 +83,11 @@ Move * Player::dfsMoveSearch(
     }
     return moves[minIdx].get();
 }
+
+int Player::operations() const {
+    return 100000;
+}
+
 
 /**    Human    **/
 Human::Human() : Player{} {}
@@ -102,7 +102,7 @@ Move * Human::decide(
     const string & cmd, std::vector<std::unique_ptr<Move>> & moves,
     Board * board, int round) {
     if (cmd == "hint") {
-        return dfsMoveSearch(moves, board, round, 10);
+        return dfsMoveSearch(moves, board, round);
     }
     for (auto & move : moves) {
         if (move->Rep() == cmd) {
@@ -111,6 +111,7 @@ Move * Human::decide(
     }
     return nullptr;
 }
+
 
 /***  Computer Players   ***/
 Computer::Computer() : Player{} {}
@@ -123,7 +124,7 @@ Move * Computer::decide(
     if (cmd != "m" && cmd != "") {
         return nullptr;
     }
-    return dfsMoveSearch(moves, board, round, depth());
+    return dfsMoveSearch(moves, board, round);
 }
 
 /**   Computer 0   **/
@@ -132,10 +133,6 @@ Computer0::~Computer0() {}
 
 string Computer0::rep() {
     return "computer0";
-}
-
-int Computer0::depth() const {
-    return 6;
 }
 
 
@@ -147,8 +144,8 @@ string Computer1::rep() {
     return "computer1";
 }
 
-int Computer1::depth() const {
-    return 23;
+int Computer1::operations() const {
+    return 2500000;
 }
 
 /**  Computer 2  **/
@@ -159,8 +156,8 @@ string Computer2::rep() {
     return "computer2";
 }
 
-int Computer2::depth() const {
-    return 18;
+int Computer2::operations() const {
+    return 200000;
 }
 
 double Computer2::outcome(
@@ -184,8 +181,8 @@ string Computer3::rep() {
     return "computer3";
 }
 
-int Computer3::depth() const {
-    return 18;
+int Computer3::operations() const {
+    return 300000;
 }
 
 double Computer3::outcome(

@@ -53,8 +53,12 @@ class Player {
     // finds an optimal move with DFS
     Move * dfsMoveSearch(
         const std::vector<std::unique_ptr<Move>> & moves,
-        Board * board, int round,int depth
+        Board * board, int round
     ) const;
+
+    // returns the depth of the DFS
+    virtual int operations() const;
+
 
     public:
     // constructor / destructor
@@ -83,6 +87,7 @@ class Human : public Player {
         const std::string & cmd, 
         std::vector<std::unique_ptr<Move>> & moves, 
         Board * board, int round) override;
+    
 
     public:
     Human();
@@ -98,9 +103,6 @@ class Computer : public Player {
     protected:
     Move * decide(const std::string & cmd, std::vector<std::unique_ptr<Move>> & moves, Board * board, int round) override;
 
-    // returns the depth of the DFS
-    virtual int depth() const = 0;
-
     public:
     Computer();
     virtual ~Computer() = 0;
@@ -113,7 +115,6 @@ class Computer0 : public Computer {
 
     /**   Functions   **/
     std::string rep() override;
-    int depth() const override;
 
     public:
     Computer0();
@@ -125,7 +126,7 @@ class Computer0 : public Computer {
 class Computer1 : public Computer {
     /**   Functions   **/
     std::string rep() override;
-    int depth() const override;
+    int operations() const override;
 
     public:
     Computer1();
@@ -137,7 +138,7 @@ class Computer1 : public Computer {
 class Computer2: public Computer {
     /**   Functions   **/
     std::string rep() override;
-    int depth() const override;
+    int operations() const override;
     double outcome(Board * board, double score, int round, Move * move) const override;
     public:
     Computer2();
@@ -149,7 +150,7 @@ class Computer2: public Computer {
 class Computer3: public Computer {
     /**   Functions   **/
     std::string rep() override;
-    int depth() const override;
+    int operations() const override;
     double outcome(Board * board, double score, int round, Move * move) const override;
     public:
     Computer3();
