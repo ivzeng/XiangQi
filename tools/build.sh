@@ -83,4 +83,4 @@ if [ $language -ne 0 ]; then
     fi
 fi
 
-make $(echo CPPFLAGS=$variables EXEC_DIRECTORY=$dirctory/ EXEC=$exec)
+make $(echo PREPROCESSOR=$variables EXEC_DIRECTORY=$dirctory/ EXEC=$exec)

@@ -1,6 +1,6 @@
 CXX=g++
-CXXFLAGS=-g -Wall -O3 -MMD
-CPPFLAGS=
+CPPFLAGS=-g -Wall -O3 -MMD
+PREPROCESSOR=
 SRC_DIRECTORY= ../src/
 EXEC_DIRECTORY = ../
 SRC = $(wildcard ${SRC_DIRECTORY}*.cpp)
@@ -9,7 +9,7 @@ DEPENDS = $(SRC:.cpp=.d)
 EXEC = 中国象棋.exe
 
 ${EXEC}: ${OBJECTS}
-	${CXX} ${CXXFLAGS} ${CPPFLAGS} ${OBJECTS} -o "${EXEC_DIRECTORY}${EXEC}"
+	${CXX} ${CXXFLAGS} ${OBJECTS} ${PREPROCESSOR} -o "${EXEC_DIRECTORY}${EXEC}"
 
 -include ${DEPENDS}
 
