@@ -47,7 +47,7 @@ fi
 
 
 language=0
-debug=0
+debug=""
 exec="中国象棋"
 dirctory=".."
 
@@ -72,10 +72,10 @@ for arg in $@; do
             esac
             ;;
         ("-d")
-            if [ $debug -ne 0 ]; then
+            if [ ! $debug == "" ]; then
                 usage
             fi
-            debug=1
+            debug="-DDEBUG -g"
             ;;
         (*)
             if [ ! $dirctory == ".." ]; then
@@ -91,8 +91,7 @@ if [ $language -ne 0 ]; then
     variables="$variables-DINIT_LANGUAGE=$language "
 fi
 
-if [ $debug -ne 0 ]; then
-    debug="-DDEBUG -g"
+if [ ! "$debug" == "" ]; then
     exec=${exec}_debug
 fi
 
