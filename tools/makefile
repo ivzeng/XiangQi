@@ -1,6 +1,6 @@
 CXX=g++
-CPPFLAGS=-g -Wall -O3 -MMD
 PREPROCESSOR=
+CPPFLAGS=-g -Wall -O3 -MMD $(PREPROCESSOR)
 SRC_DIRECTORY= ../src/
 EXEC_DIRECTORY = ../
 SRC = $(wildcard ${SRC_DIRECTORY}*.cpp)
