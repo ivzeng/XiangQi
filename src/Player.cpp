@@ -77,7 +77,9 @@ Move * Player::dfsMoveSearch(
             minSc = curSc;
             minIdx = i;
         }
-        //cout << moves[i]->Rep() << ' ' << curSc << endl;
+        #ifdef DEBUG
+        cout << moves[i]->Rep() << ' ' << curSc << endl;
+        #endif
         moves[i]->Undo();
         moves[i]->RSet(board);
     }

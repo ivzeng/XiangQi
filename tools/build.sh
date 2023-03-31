@@ -11,6 +11,9 @@
 #       -l[ce]
 #           set initial language: Chinese / English
 
+#       -d
+#           enter debug option
+
 #       [EXEC_DIRECTORY]
 #           set the dirctory of the EXEC
 
@@ -23,6 +26,7 @@ usage() {
     echo ""
     echo "OPTION"
     echo "$tab-l[ce]$tab set initial language: Chinese / English"
+    echo "$tab-b    $tab enable debugging mode"
     echo ""
     echo "OPTION need to be unique in type"
     echo "$tab(for example, do not execute build.sh with both -lc and -le)"
@@ -43,7 +47,8 @@ fi
 
 
 language=0
-exec="中国象棋.exe"
+debug=0
+exec="中国象棋"
 dirctory=".."
 
 
@@ -59,16 +64,22 @@ for arg in $@; do
                     ;;
                 (-le)
                     language=2
+                    exec="Chinese_Chess"
                     ;;
                 (*)
                     usage
                     ;;
             esac
             ;;
+        ("-d")
+            if [ $debug -ne 0 ]; then
+                usage
+            fi
+            debug=1
+            ;;
         (*)
             if [ ! $dirctory == ".." ]; then
                 usage
-                exit -1 
             fi
             dirctory=$arg
             ;;
@@ -78,9 +89,12 @@ done
 variables=""
 if [ $language -ne 0 ]; then
     variables="$variables-DINIT_LANGUAGE=$language "
-    if [ $language -eq 2 ]; then
-        exec="Chinese_Chess.exe"
-    fi
 fi
 
-make $(echo PREPROCESSOR=$variables EXEC_DIRECTORY=$dirctory/ EXEC=$exec)
+if [ $debug -ne 0 ]; then
+    debug="-DDEBUG -g"
+    exec=${exec}_debug
+fi
+
+
+make "PREPROCESSOR=$variables" "DEBUG=$debug" "EXEC_DIRECTORY=$dirctory/" "EXEC=${exec}.exe"
