@@ -95,8 +95,28 @@ cat demo1.out
 - Start thinking of BFS move searching and GUI components
 
 
+## Changelogs
 
+### 2023-03-17
 
+#### Added
+- Building Tools (`build.sh`)
+  - `build.sh usage` to see the usage of `build.sh`
+- Initial Language Options on Building
+  - you can set the initial language of the program to English by running `build.sh -le` or `make PREPROCESSOR=-DINIT_LANGUAGE=2`
+
+### 2023-03-24
+
+#### Changed
+
+- DFS Depth control
+  - the weird stepping function is switched into a better and more clear function that recudes the depth by factoring with number of valid moves.  
+
+### 2023-03-31
+
+#### Added
+- Debugging Option: 
+  - to compile with enabled debugging mode, run `build.sh` with `-d` flag or `make` with `make "DEBUG=-DDEBUG -g"`.
 
 ---
 ## Have fun!
