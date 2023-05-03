@@ -193,57 +193,32 @@ int XQBoard::pMoveIdx(int round) const {
 }
 
 double XQBoard::outcome0(int round) {
+    int curPlayer = pMoveIdx(round);
     double res = 0;
-    int safeAttackCount = 0;
-    int threatsCount [10][9] {0};
-    vector<unique_ptr<Move>> selfThreats{};
-    vector<unique_ptr<Move>> otherProtections{};
-
-    // gets theat moves and protection moves of the two players
-    getMoves(round, selfThreats, 1);
-    getMoves(round+1, otherProtections, 2);
-    
-    for (const unique_ptr<Move> & move : selfThreats) {
-        vector<Item *> items = move->Items();
-        //XQPiece * piece = dynamic_cast<XQPiece *> (items[0]);
-        XQPiece * target = dynamic_cast<XQPiece *> (items[1]);
-        threatsCount[target->GetPos().second][target->GetPos().first] += 1;
-        if (threatsCount[target->GetPos().second][target->GetPos().first] == 1) {
-            res += target->Val();
-            safeAttackCount += 1;
-        }
+    for (const unique_ptr<XQPiece> & p : pieces[curPlayer]) {
+        if (p->Valid()) res += p->Val();
     }
-
-    for (const unique_ptr<Move> & move : otherProtections) {
-        vector<Item *> items = move->Items();
-        //XQPiece * piece = dynamic_cast<XQPiece *> (items[0]);
-        XQPiece * target = dynamic_cast<XQPiece *> (items[1]);
-        if (threatsCount[target->GetPos().second][target->GetPos().first] != 0) {
-            threatsCount[target->GetPos().second][target->GetPos().first] -= 1;
-            if (threatsCount[target->GetPos().second][target->GetPos().first] == 0) {
-                res -= target->Val();
-                safeAttackCount -= 1;
-            }
-        }
+    for (const unique_ptr<XQPiece> & p : pieces[1-curPlayer]) {
+        if (p->Valid()) res -= p->Val();
     }
-    return 2*res/(safeAttackCount+1);
+    return res;
 }
 
-
 double XQBoard::outcome1(int round) {
-    vector<unique_ptr<Move>> selfMoves{};
-    vector<unique_ptr<Move>> otherMoves{};
-    getMoves(round, selfMoves);
-    getMoves(round+1, otherMoves);
     double res = 0;
+    vector<unique_ptr<Move>> selfMoves{};
+    vector<unique_ptr<Move>> opponentMoves{};
+    getMoves(round, selfMoves);
+    getMoves(round+1, opponentMoves);
     for (const unique_ptr<Move> & move : selfMoves) {
         res += move->Outcome();
     }
-    for (const unique_ptr<Move> & move : otherMoves) {
+    for (const unique_ptr<Move> & move : opponentMoves) {
         res -= move->Outcome();
     }
     return res;
 }
+
 
 int XQBoard::edgeType(int x, int y) const {
     const int h = height()-1;

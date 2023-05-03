@@ -38,6 +38,8 @@ class Board {
     virtual int pMoveIdx(int round) const                           = 0;
     virtual double outcome0(int round)                              = 0;
     virtual double outcome1(int round)                              = 0;
+    virtual double outcome2(int round)                              = 0;
+
 
     public:
 
@@ -101,6 +103,9 @@ class XQBoard : public Board {
     double outcome0(int round) override;
 
     double outcome1(int round) override;
+
+    double outcome2(int round) override;
+
 
     int edgeType(int x, int y) const;
 
