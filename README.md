@@ -86,13 +86,11 @@ cat demo1.out
 
 - Continue to optimize and simplify the code
 
-- Get a better outcome function for Board to make C3 smarter
+- Get a better outcome function for Board to make C2/C3 smarter
 
-- get a efficient hash function for the board
+- get a invertable function that convert a board into a string
 
 - add functions that store program data locally and handle those data
-
-- Start thinking of BFS move searching and GUI components
 
 
 ## Changelogs
@@ -117,6 +115,16 @@ cat demo1.out
 #### Added
 - Debugging Option: 
   - to compile with enabled debugging mode, run `build.sh` with `-d` flag or `make` with `make "DEBUG=-DDEBUG -g"`.
+
+
+### 2023-05-03
+
+#### Changed
+- adjusted move analysis functions: `Player::dfsMovesAnalysis` now would calculate the expected payoff of each possible move and store the result in a vector of pair (payoff, move) called `movesEPayoff`, sorted in accending order of the payoff.
+
+- removed `XQBoard::outcome1` (the outcome function that analysizes the piece exchange outcome), renamed `XQBoard::outcome2` to `XQBoard::outcome1`.
+
+- simplified and optimized code in Player.cpp
 
 ---
 ## Have fun!
