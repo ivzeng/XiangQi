@@ -4,6 +4,7 @@
 #include "Board.h"
 #include "helpers.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -19,47 +20,120 @@ string Player::Rep() {
 }
 
 Move * Player::Decide(
-    const string & cmd, std::vector<std::unique_ptr<Move>> & moves,
-    Board * board, int round
+    Board * board, int round,
+    const string & cmd,
+    vector<unique_ptr<Move>> & moves
 ) {
-    return decide(cmd, moves, board, round);
+    return decide(board, round, cmd, moves);
 }
 
-double Player::outcome(
-    Board * board, double score, int round, Move * move
+void Player::initMovesEPayoff(
+    const vector<unique_ptr<Move>> & moves,
+    vector<pair<double, Move *>> & movesEPayoff
 ) const {
-    return score;
+    int ml = moves.size();
+    movesEPayoff = vector<pair<double, Move *>>(ml, pair<double, Move *>{0, nullptr});
+    for (int i = 0; i < ml; i += 1){
+        movesEPayoff[i].second = moves[i].get();
+    }
 }
 
-double Player::dfsMoveAnalysis(
-    Board * board, double score, int round, int depth
+double Player::eOutcome(
+    Board * board, int round
 ) const {
-    vector<unique_ptr<Move>> moves{};
-    board->GetMoves(round, moves);
-    int l = moves.size();
-    if (l == 0) {
+        return board->Outcome(round, 0);
+}
+
+double Player::eOutcome(
+    int l, double factor,
+    const vector<pair<double, Move *>> & movesEPayoff
+) const {
+    
+    // calculate expected outcome
+    double res = 0;
+    double remain = 1;
+    if ((int)movesEPayoff.size() <= l) {
+        l = movesEPayoff.size()-1;
+    }
+    for (int i = 0; i < l; i += 1) {
+        res += (double) movesEPayoff[i].first*remain*factor;
+        remain *= (1-factor);
+    }
+    res += (double) movesEPayoff[l].first*remain;
+    return res;
+}
+
+double Player::dfsMovesAnalysis(
+    Board * board, int round, int depth,
+    vector<pair<double, Move *>> & movesEPayoff
+) const {
+    int n = movesEPayoff.size();
+
+    // case: there is no avaliable move, the opponent wins
+    if (n == 0) {
         return -600;
     }
-    depth /= l;
-    priority_queue<double> scores {};
-    if (depth <= l) {
-        for (const unique_ptr<Move> & move : moves) {
-            scores.push(outcome(board, move->Outcome()-score, round, move.get()));
+
+    // analyze the expected payoff of each move and store it into movesEPayoff
+    round += 1;
+    depth /= n;
+    for (pair<double, Move *> & move : movesEPayoff) {
+        move.second->Proc();
+        move.second->Set(board);
+
+        if (depth <= 1) {
+            move.first = eOutcome(board, round);
         }
-        return expectedOutcome(20, scores);
+        else {
+            vector<unique_ptr<Move>> nextMoves{};
+            vector<pair<double, Move *>> nextMovesEPayoff{};
+            board->GetMoves(round, nextMoves);
+            initMovesEPayoff(nextMoves, nextMovesEPayoff);
+            move.first = dfsMovesAnalysis(board, round, depth, nextMovesEPayoff);
+        }
+
+        move.second->Undo();
+        move.second->RSet(board);
     }
-    for (const unique_ptr<Move> & move : moves) {
-        move->Proc();
-        move->Set(board);
-        scores.push(-dfsMoveAnalysis(board, move->Outcome()-score, round+1, depth));
-        move->Undo();
-        move->RSet(board);
+
+    // sort movesEPayoff by payoff into accending order
+    sort(
+        movesEPayoff.begin(), movesEPayoff.end(),
+        [] (const pair<double, Move *> & m1, const pair<double, Move *> & m2) -> bool {
+            return m1.first < m2.first;
+        }
+    );
+
+    /*
+    #ifdef DEBUG
+    cout << "Round " << round - 1 << endl; 
+    for (const auto & m : movesEPayoff) {
+        cout << m.second->Rep() << " " << m.first << endl; 
     }
-    return expectedOutcome(10, scores, 0.7);
+    cout << endl;
+    #endif
+    */
+
+    // calculates the overall outcome
+    int l = (n <= 1) ? 20 : 10;
+    double factor = (n <= 1) ? (double)0.5 : (double)0.7;
+    return -eOutcome(l, factor, movesEPayoff);
 }
 
-Move * Player::dfsMoveSearch(
-    const vector<unique_ptr<Move>> & moves, Board * board, int round
+void Player::analyzeMoves(
+    Board * board, int round, vector<pair<double, Move *>> & movesEPayoff
+) const {
+    dfsMovesAnalysis(board, round, operations(), movesEPayoff);
+}
+
+Move * Player::selectMove(
+    const std::vector<std::pair<double, Move *>> & movesEPayoff
+) const {
+    return movesEPayoff[0].second;
+}
+
+Move * Player::decideMove(
+    Board * board, int round, const vector<unique_ptr<Move>> & moves
 ) const {
     if (moves.size() == 0) {
         return nullptr;
@@ -67,27 +141,21 @@ Move * Player::dfsMoveSearch(
     else if (moves.size() == 1) {
         return moves[0].get();
     }
-    double minSc = 1000;
-    int minIdx = 0;
-    for (int i = moves.size()-1; i >= 0; i -= 1) {
-        moves[i]->Proc();
-        moves[i]->Set(board);
-        double curSc = dfsMoveAnalysis(board, moves[i]->Outcome(), round+1, operations());
-        if (curSc <= minSc) {
-            minSc = curSc;
-            minIdx = i;
-        }
-        #ifdef DEBUG
-        cout << moves[i]->Rep() << ' ' << curSc << endl;
-        #endif
-        moves[i]->Undo();
-        moves[i]->RSet(board);
+    vector<pair<double, Move *>> movesEPayoff{};
+    initMovesEPayoff(moves, movesEPayoff);
+    analyzeMoves(board, round, movesEPayoff);
+    #ifdef DEBUG
+    cout << "Round " << round << endl; 
+    for (const auto & m : movesEPayoff) {
+        cout << m.second->Rep() << " " << m.first << endl; 
     }
-    return moves[minIdx].get();
+    cout << endl;
+    #endif
+    return selectMove(movesEPayoff);
 }
 
 int Player::operations() const {
-    return 100000;
+    return 50000;
 }
 
 
@@ -101,10 +169,12 @@ std::string Human::rep() {
 }
 
 Move * Human::decide(
-    const string & cmd, std::vector<std::unique_ptr<Move>> & moves,
-    Board * board, int round) {
+    Board * board, int round,
+    const string & cmd,
+    vector<unique_ptr<Move>> & moves
+) {
     if (cmd == "hint") {
-        return dfsMoveSearch(moves, board, round);
+        return decideMove(board, round, moves);
     }
     for (auto & move : moves) {
         if (move->Rep() == cmd) {
@@ -120,13 +190,14 @@ Computer::Computer() : Player{} {}
 Computer::~Computer() {}
 
 Move * Computer::decide(
-    const string & cmd, std::vector<std::unique_ptr<Move>> & moves,
-    Board * board, int round
+    Board * board, int round,
+    const string & cmd,
+    vector<unique_ptr<Move>> & moves
 ) {
     if (cmd != "m" && cmd != "") {
         return nullptr;
     }
-    return dfsMoveSearch(moves, board, round);
+    return decideMove(board, round, moves);
 }
 
 /**   Computer 0   **/
@@ -147,7 +218,7 @@ string Computer1::rep() {
 }
 
 int Computer1::operations() const {
-    return 2500000;
+    return 6500000;
 }
 
 /**  Computer 2  **/
@@ -159,19 +230,11 @@ string Computer2::rep() {
 }
 
 int Computer2::operations() const {
-    return 200000;
+    return 4000000;
 }
 
-double Computer2::outcome(
-    Board * board, double score, int round, Move * move
-) const {
-    move->Proc();
-    move->Set(board);
-    double res = score - (double) board->Outcome(round+1);
-    move->Undo();
-    move->RSet(board);
-    //cout << res << endl;
-    return res;
+double Computer2::eOutcome(Board * board, int round) const {
+    return board->Outcome(round, 1);
 }
 
 /**  Computer 3  **/
@@ -187,16 +250,10 @@ int Computer3::operations() const {
     return 300000;
 }
 
-double Computer3::outcome(
-Board * board, double score, int round, Move * move
+double Computer3::eOutcome(
+Board * board, int round
 ) const {
-    move->Proc();
-    move->Set(board);
-    double res = -board->Outcome(round, 1);
-    move->Undo();
-    move->RSet(board);
-    //cout << res << endl;
-    return res;
+    return board->Outcome(round, 2);
 }
 
 

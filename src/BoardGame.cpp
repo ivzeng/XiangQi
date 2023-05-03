@@ -129,7 +129,7 @@ int BoardGame::proc(const string & cmd, string & fb) {
             fb = msg->GetD(MTYPE_Proc, 0);
             return -1;
         case STATE_Game:{
-            Move * move = players[pMoveIdx()]->Decide(cmd, moves, board.get(), round);
+            Move * move = players[pMoveIdx()]->Decide(board.get(), round, cmd, moves);
             if (! move) {
                 fb = msg->GetD(MTYPE_Proc, 0);
                 return -1;
