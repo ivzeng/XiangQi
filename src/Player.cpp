@@ -230,7 +230,7 @@ string Computer2::rep() {
 }
 
 int Computer2::operations() const {
-    return 4000000;
+    return 2000000;
 }
 
 double Computer2::eOutcome(Board * board, int round) const {
