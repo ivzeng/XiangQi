@@ -10,7 +10,7 @@
 using namespace std;
 
 BoardGame::BoardGame() : 
-    state{nullptr}, msg{nullptr}, playerType{}, scores{}, board{},
+    mode{1}, state{nullptr}, msg{nullptr}, playerType{}, scores{}, board{},
     round {0}, moves{}, hist{}, players{} {}
 
 BoardGame::~BoardGame() {}
@@ -30,12 +30,13 @@ void BoardGame::UpdateRMsg(string & m) const {
 
 void BoardGame::init() {
     state = make_unique<State_Default>();
-    playerType.reserve(5);
+    playerType.reserve(6);
     playerType.emplace_back("h");
     playerType.emplace_back("c0");
     playerType.emplace_back("c1");
     playerType.emplace_back("c2");
     playerType.emplace_back("c3");
+    playerType.emplace_back("c4");
 }
 
 void BoardGame::resetPlayers() {
@@ -69,6 +70,7 @@ int BoardGame::proc(const string & cmd, string & fb) {
             start(fb);
         }
         else {
+            mode = 1;
             state->SetState(STATE_PSetting);
         }
         return 1;
@@ -78,6 +80,16 @@ int BoardGame::proc(const string & cmd, string & fb) {
         return 1;
     case CMD_SetL:
         msg->SetL();
+        return 1;
+    case CMD_Tr:
+        if (pSetted()) {
+            fb.reserve(100);
+            startTr(fb);
+        }
+        else {
+            mode = 2;
+            state->SetState(STATE_PSetting);
+        }
         return 1;
     case CMD_ShowC:
         fb.reserve(200);
@@ -116,19 +128,29 @@ int BoardGame::proc(const string & cmd, string & fb) {
         switch (state->GetState())
         {
         case STATE_PSetting:
+        // setting player
             for (int i = playerType.size()-1; i >= 0; i -= 1) {
                 if (cmd == playerType[i]) {
                     players.emplace_back(makePlayer(i));
                     if (pSetted()) {
                         fb.reserve(100);
-                        start(fb);
+                        switch (mode)
+                        {
+                        case 2:
+                            startTr(fb);
+                            break;
+                        default:
+                            start(fb);
+                            break;
+                        }
                     }
                     return 1;
                 }
             }
             fb = msg->GetD(MTYPE_Proc, 0);
             return -1;
-        case STATE_Game:{
+        case STATE_Game: {
+            // making move
             Move * move = players[pMoveIdx()]->Decide(board.get(), round, cmd, moves);
             if (! move) {
                 fb = msg->GetD(MTYPE_Proc, 0);
@@ -146,9 +168,16 @@ int BoardGame::proc(const string & cmd, string & fb) {
             }
             return 1;
         }
-        
+
+        case STATE_Training:
+        {
+            int n = stoi(cmd);
+            return train(n,fb);
+        }
+
         default:
-            fb = fb = msg->GetD(MTYPE_Proc, 0);
+        // warning invalid cmd
+            fb = msg->GetD(MTYPE_Proc, 0);
             return -1;
         }
     }
@@ -156,17 +185,54 @@ int BoardGame::proc(const string & cmd, string & fb) {
 
 void BoardGame::start(string & fb) {
     state->SetState(STATE_Game);
-    fb += msg->Get(MTYPE_Proc, CMD_ToPS);
-    for (auto & player : players) {
-        fb += player->Rep();
-        fb += ' ';
-    }
-    fb += '\n';
+    fb += msg->Get(MTYPE_Proc, CMD_ToPS, 0);
+    showPlayers(fb);
     resetGame();
+}
+
+void BoardGame::startTr(string & fb){
+    state->SetState(STATE_Training);
+    fb += msg->Get(MTYPE_Proc, CMD_Tr, 0);
+    showPlayers(fb);
+}
+
+
+int BoardGame::train(int n, string & fb) {
+    fb.reserve(n*1000);
+    fb += msg->Get(MTYPE_State, STATE_Training, 2);
+    while (n > 0) {
+        resetGame();
+        fb += to_string(n) + ":\n";
+        while (moves.size() != 0 && round <= 20) {
+            Move * move = players[pMoveIdx()]->Decide(board.get(), round, "m", moves);
+            if (! move) {
+                fb = msg->GetD(MTYPE_Proc, 1);
+                resetPlayers();
+                state->SetState(STATE_Main);
+                return -1;
+            }
+            fb += move->Rep() + " ";
+            doRound(move);
+        }
+        fb += '\n';
+        n -= 1;
+    }
+    fb += msg->Get(MTYPE_State, STATE_Training, 3);
+    resetPlayers();
+    state->SetState(STATE_Main);
+    return 1;
 }
 
 bool BoardGame::pSetted() {
     return static_cast<int>(players.size()) == ePlayerCount();
+}
+
+void BoardGame::showPlayers(string & fb) const {
+    fb += msg->Get(MTYPE_Proc, CMD_ToPS, 1);
+    for (const unique_ptr<Player> & p : players) {
+        fb += msg->Get(MTYPE_Player, p->Type());
+        fb += '\n';
+    }
 }
 
 void BoardGame::movesRep(string & m, const vector<unique_ptr<Move>> & moves) const {
@@ -194,7 +260,6 @@ int BoardGame::undoRound() {
 }
 
 int BoardGame::analyze() const {
-    // TODO
     return moves.size();
 }
 
@@ -231,13 +296,15 @@ void BoardGame::updateRMsg(string & m) const {
         m += msg->Get(MTYPE_State, STATE_PSetting, 1);
         break;
     case STATE_Game:
-        m.reserve(600);
         board->Info(m, *msg);
         m += msg->Get(MTYPE_State, STATE_Game, 0);
         m += to_string(gameRound() + 1);
         m += msg->Get(MTYPE_State, STATE_Game, 1);
         m += msg->Get(MTYPE_Board, 3, pMoveIdx());
         m += msg->Get(MTYPE_State, STATE_Game, 2);
+        break;
+    case STATE_Training:
+        m += msg->Get(MTYPE_State, STATE_Training, 0);
         break;
     default:
         break;
@@ -256,6 +323,10 @@ void BoardGame::updateCmd(string & m) const {
     case STATE_Game:
         m.reserve(moves.size()*5+10);
         movesRep(m, moves);
+        break;
+    case STATE_Training:
+        m.reserve(50);
+        m += msg->Get(MTYPE_State, STATE_Training, 1);
         break;
     default:
         break;

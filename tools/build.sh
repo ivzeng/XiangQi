@@ -48,7 +48,7 @@ fi
 
 language=0
 debug=""
-exec="中国象棋"
+exec="x中国象棋"
 dirctory=".."
 
 
@@ -64,7 +64,7 @@ for arg in $@; do
                     ;;
                 (-le)
                     language=2
-                    exec="Chinese_Chess"
+                    exec="xChinese_Chess"
                     ;;
                 (*)
                     usage
@@ -86,7 +86,7 @@ for arg in $@; do
     esac
 done
 
-variables=""
+variables="-DLINUX"
 if [ $language -ne 0 ]; then
     variables="$variables-DINIT_LANGUAGE=$language "
 fi

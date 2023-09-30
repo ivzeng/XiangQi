@@ -4,6 +4,7 @@
 #include "Texts.h"
 #include "helpers.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -30,6 +31,10 @@ void Board::GetMoves(int round, vector<unique_ptr<Move>> & moves, int mode) {
 
 int Board::PMoveIdx(int round) const {
     return pMoveIdx(round);
+}
+
+string Board::ToString(int round) const {
+    return toString(round);
 }
 
 double Board::Outcome(int round, int mode) {
@@ -90,26 +95,27 @@ void XQBoard::reset() {
 
 
 void XQBoard::info(string & m, const Msg & msg) {
+        m.reserve(1000);
     int w = width();
     int h = height();
-    int vg = msg.Get(MTYPE_Board, 0, 0).size();
-    const string & resetBG =msg.GetD(MTYPE_Board, 3);
-    const string & setBG = msg.GetD(MTYPE_Board, 2);
-    const string & setTxB = msg.GetD(MTYPE_Board, 1);
-    const string & setTxR = msg.GetD(MTYPE_Board, 0);
-    const string & hl = msg.Get(MTYPE_Board, 0, 1);
+    int txtLen = 1 - msg.Get(MTYPE_Board, 1, 0).size()/3;
+    const string & resetBGT =msg.GetD(MTYPE_Board, 3);  // reset background and text
+    const string & setBG = msg.GetD(MTYPE_Board, 2);    // set background colour to yellow
+    const string & setTxB = msg.GetD(MTYPE_Board, 1);   // set text into black
+    const string & setTxR = msg.GetD(MTYPE_Board, 0);   // set text into red
+    const string & hl = msg.Get(MTYPE_Board, 0, 1);     // horizontal line
+    string spc(3, ' ');                                 // space
+    string spcEdge{" "};                                // space at edges
+    string spcEdgePiece(txtLen, ' ');                 // space at edges in front of a piece
 
-    string spcBk = string(msg.Get(MTYPE_Board, 1, 0).size()/3 , ' ');
-    string spcSk = string(hl.size()/3, ' ') + spcBk;
-
-    for (int y = h-1;; y -= 1) {
-        m += y+'0';
-        m += ' ';
-        m += setBG;
-        m += setTxB;
+    for (int y = h-1; y >= 0; y -= 1) {
+        m += to_string(y) + " " + setBG + setTxB;
         for (int x = 0; x < w; x += 1) {
             XQPiece * p = board[y][x];
             if (p) {
+                if (x == 0) {
+                    m += spcEdge;
+                }
                 if (p->GetCol() == 0) {
                     m += setTxR;
                     m += msg.Get(MTYPE_Board, 1, p->Type()-1);
@@ -126,35 +132,34 @@ void XQBoard::info(string & m, const Msg & msg) {
                 m += hl;
             }
             else {
-                m += spcBk;
+                if (p) {
+                    m += spcEdgePiece;
+                }
+                else {
+                    m += spcEdge;
+                }
             }
         }
-        m += resetBG;
-        m += '\n';
+        m += resetBGT + '\n';
         if (y == 0) {
             break;
         }
-        const string vl = y == 5 ? " " : msg.Get(MTYPE_Board, 0, 2);
 
-        for (int i = vg; i > 0; i -= 1) {
-            m += "  ";
-            m += setBG;
-            m += setTxB;
-            m += ' ';
+        const string vl = y == 5 ? " " : msg.Get(MTYPE_Board, 0, 2);    // vertical line
+        m += "  " + setBG + setTxB + spcEdge;
+        for (int j = 0; j < w-1; j += 1) {
             m += vl;
-            for (int j = width()-1; j > 0; j -= 1) {
-                m += spcSk;
-                m += vl;
-            }
-            m += spcBk;
-            m += resetBG;
-            m += '\n';
+            m += spc;
         }
+        m += vl;
+        m += spcEdge;
+        m += resetBGT;
+        m += '\n';
     }
-    m += spcSk;
+    m += "  " + spcEdge;
     for (int x = 0; x < w; x += 1) {
         m += char(x+'a');
-        m += spcSk;
+        m += spc;
     }
 }
 
@@ -192,6 +197,32 @@ int XQBoard::pMoveIdx(int round) const {
     return round%2;
 }
 
+string XQBoard::toString(int round) const {
+    // put pieces info.
+    string rep(32, ' ');
+    int col = round%2;
+    for (int i = 0; i <= 15; i += 1) {
+        rep[i] = pieces[col][i]->ToChar();
+        rep[i+16] = pieces[1-col][i]->ToChar();
+    }
+
+    // sort to reduce repitetion
+    sort(rep.begin()+1, rep.begin()+3);
+    sort(rep.begin()+3, rep.begin()+5);
+    sort(rep.begin()+5, rep.begin()+7);
+    sort(rep.begin()+7, rep.begin()+9);
+    sort(rep.begin()+9, rep.begin()+11);
+    sort(rep.begin()+11, rep.begin()+16);
+    sort(rep.begin()+17, rep.begin()+19);
+    sort(rep.begin()+19, rep.begin()+21);
+    sort(rep.begin()+21, rep.begin()+23);
+    sort(rep.begin()+23, rep.begin()+25);
+    sort(rep.begin()+25, rep.begin()+27);
+    sort(rep.begin()+27, rep.end());
+
+    return rep;
+}
+
 double XQBoard::outcome0(int round) {
     int curPlayer = pMoveIdx(round);
     double res = 0;
@@ -205,18 +236,23 @@ double XQBoard::outcome0(int round) {
 }
 
 double XQBoard::outcome1(int round) {
-    double res = 0;
+    double res = outcome0(round);
+    double movesBonus = 0;
     vector<unique_ptr<Move>> selfMoves{};
     vector<unique_ptr<Move>> opponentMoves{};
     getMoves(round, selfMoves);
+    if (selfMoves.size() == 0) {
+        return -1000;
+    }
     getMoves(round+1, opponentMoves);
     for (const unique_ptr<Move> & move : selfMoves) {
-        res += move->Outcome();
+        movesBonus += move->Weight();
     }
     for (const unique_ptr<Move> & move : opponentMoves) {
-        res -= move->Outcome();
+        movesBonus -= move->Weight();
     }
-    return res;
+    movesBonus /= (double) selfMoves.size();
+    return res + movesBonus;
 }
 
 

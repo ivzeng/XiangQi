@@ -5,6 +5,13 @@
 
 using namespace std;
 
+string pathSep() {
+    #ifndef LINUX
+    return "//";
+    #endif
+    return "/";
+}
+
 
 void upperCase(char & c) {
     if ('a' <= c && 'z' >= c) {

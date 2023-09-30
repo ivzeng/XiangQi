@@ -33,7 +33,7 @@ class Move {
     virtual void rSet(Board * board)            = 0;
     virtual std::string rep()                   = 0;
     virtual std::unique_ptr<Move> copy() const  = 0;
-    virtual double outcome() const              = 0;
+    virtual double weight() const              = 0;
     virtual std::vector<Item *> items() const   = 0;
 
     public:
@@ -60,7 +60,7 @@ class Move {
     std::unique_ptr<Move> Copy() const;
 
     // returns the outcome of the move
-    double Outcome() const;
+    double Weight() const;
 
     // get the items
     std::vector<Item *> Items() const;
@@ -87,7 +87,7 @@ class XQMove : public Move {
     void rSet(Board * board) override;
     std::string rep() override;
     std::unique_ptr<Move> copy() const override;
-    double outcome() const override;
+    double weight() const override;
     std::vector<Item *> items() const override;
 
     public:

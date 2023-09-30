@@ -32,8 +32,8 @@ unique_ptr<Move> Move::Copy () const {
     return copy();
 }
 
-double Move::Outcome() const {
-    return outcome();
+double Move::Weight() const {
+    return weight();
 }
 
 vector<Item *> Move::Items() const {
@@ -85,10 +85,10 @@ unique_ptr<Move> XQMove::copy() const {
     return make_unique<XQMove>(*this);
 }
 
-double XQMove::outcome() const {
-    int res = (double)piece->Val(to) - piece->Val(from);
+double XQMove::weight() const {
+    double res = piece->Weight();
     if (target) {
-        res += (double)target->Val(to);
+        res += target->Val()/5;
     }
     return res;
 }

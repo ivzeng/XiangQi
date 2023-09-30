@@ -5,6 +5,8 @@
 #include "helpers.h"
 #include <iostream>
 #include <algorithm>
+#include <sys/stat.h>
+#include <fstream>
 
 using namespace std;
 
@@ -15,8 +17,12 @@ Player::Player() {}
 
 Player::~Player() {}
 
-string Player::Rep() {
+string Player::Rep() const {
     return rep();
+}
+
+int Player::Type() const {
+    return type();
 }
 
 Move * Player::Decide(
@@ -40,7 +46,7 @@ void Player::initMovesEPayoff(
 
 double Player::eOutcome(
     Board * board, int round
-) const {
+) {
         return board->Outcome(round, 0);
 }
 
@@ -66,12 +72,12 @@ double Player::eOutcome(
 double Player::dfsMovesAnalysis(
     Board * board, int round, int depth,
     vector<pair<double, Move *>> & movesEPayoff
-) const {
+) {
     int n = movesEPayoff.size();
 
     // case: there is no avaliable move, the opponent wins
     if (n == 0) {
-        return -600;
+        return -1000;
     }
 
     // analyze the expected payoff of each move and store it into movesEPayoff
@@ -91,7 +97,6 @@ double Player::dfsMovesAnalysis(
             initMovesEPayoff(nextMoves, nextMovesEPayoff);
             move.first = dfsMovesAnalysis(board, round, depth, nextMovesEPayoff);
         }
-
         move.second->Undo();
         move.second->RSet(board);
     }
@@ -115,16 +120,21 @@ double Player::dfsMovesAnalysis(
     */
 
     // calculates the overall outcome
-    int l = (n <= 1) ? 20 : 10;
-    double factor = (n <= 1) ? (double)0.5 : (double)0.7;
+    int l = (n <= 1) ? (n+1)/2 : (n+3)/4;
+    double factor = (n <= 1) ? (double)0.4 : (double)0.7;
     return -eOutcome(l, factor, movesEPayoff);
 }
 
-void Player::analyzeMoves(
+double Player::analyzeMoves(
     Board * board, int round, vector<pair<double, Move *>> & movesEPayoff
-) const {
-    dfsMovesAnalysis(board, round, operations(), movesEPayoff);
+) {
+    return dfsMovesAnalysis(board, round, operations(), movesEPayoff);
 }
+
+void Player::storeInfo(
+    Board * board, int round, double expectedPayoff,
+    const vector<pair<double, Move *>> & movesEPayoff
+) {}
 
 Move * Player::selectMove(
     const std::vector<std::pair<double, Move *>> & movesEPayoff
@@ -134,7 +144,7 @@ Move * Player::selectMove(
 
 Move * Player::decideMove(
     Board * board, int round, const vector<unique_ptr<Move>> & moves
-) const {
+) {
     if (moves.size() == 0) {
         return nullptr;
     }
@@ -143,7 +153,8 @@ Move * Player::decideMove(
     }
     vector<pair<double, Move *>> movesEPayoff{};
     initMovesEPayoff(moves, movesEPayoff);
-    analyzeMoves(board, round, movesEPayoff);
+    double expectedPayoff = analyzeMoves(board, round, movesEPayoff);
+    storeInfo(board, round, expectedPayoff, movesEPayoff);
     #ifdef DEBUG
     cout << "Round " << round << endl; 
     for (const auto & m : movesEPayoff) {
@@ -164,8 +175,12 @@ Human::Human() : Player{} {}
 
 Human::~Human() {}
 
-std::string Human::rep() {
+std::string Human::rep() const {
     return "human";
+}
+
+int Human::type() const {
+    return PLAYER_HU;
 }
 
 Move * Human::decide(
@@ -200,12 +215,35 @@ Move * Computer::decide(
     return decideMove(board, round, moves);
 }
 
+Move * Computer::rSelectMove(
+    const vector<pair<double, Move *>> & movesEPayoff, float prob, float range
+) const {
+    int l = movesEPayoff.size()*range;
+    if (l == 0) {
+        return movesEPayoff[0].second;
+    }
+    int i = 0;
+    int ub = prob*RAND_MAX;
+    while (i < l - 1) {
+        int d = rand();
+        if (d < ub) {
+            return movesEPayoff[i].second;
+        }
+        i += 1;
+    }
+    return movesEPayoff[i].second;
+}
+
 /**   Computer 0   **/
 Computer0::Computer0() : Computer{} {}
 Computer0::~Computer0() {}
 
-string Computer0::rep() {
+string Computer0::rep() const {
     return "computer0";
+}
+
+int Computer0::type() const {
+    return PLAYER_C0;
 }
 
 
@@ -213,27 +251,35 @@ string Computer0::rep() {
 Computer1::Computer1() : Computer{} {}
 Computer1::~Computer1() {}
 
-string Computer1::rep() {
+string Computer1::rep() const{
     return "computer1";
 }
 
+int Computer1::type() const {
+    return PLAYER_C1;
+}
+
 int Computer1::operations() const {
-    return 6500000;
+    return 5000000;
 }
 
 /**  Computer 2  **/
 Computer2::Computer2() : Computer{} {}
 Computer2::~Computer2() {}
 
-string Computer2::rep() {
+string Computer2::rep() const {
     return "computer2";
 }
 
-int Computer2::operations() const {
-    return 2000000;
+int Computer2::type() const {
+    return PLAYER_C2;
 }
 
-double Computer2::eOutcome(Board * board, int round) const {
+int Computer2::operations() const {
+    return 150000;
+}
+
+double Computer2::eOutcome(Board * board, int round) {
     return board->Outcome(round, 1);
 }
 
@@ -242,18 +288,173 @@ Computer3::Computer3() : Computer{} {}
 
 Computer3::~Computer3() {}
 
-string Computer3::rep() {
+string Computer3::rep() const {
     return "computer3";
 }
 
+int Computer3::type() const {
+    return PLAYER_C3;
+}
+
 int Computer3::operations() const {
-    return 300000;
+    return 150000;
 }
 
 double Computer3::eOutcome(
-Board * board, int round
+    Board * board, int round
+) {
+    return board->Outcome(round, 1);
+}
+
+Move * Computer3::selectMove(
+    const vector<pair<double, Move *>> & movesEPayoff
 ) const {
-    return board->Outcome(round, 2);
+    return rSelectMove(movesEPayoff);
+}
+
+/**  Computer 4  **/
+int Computer4::dCount = 0;
+map<string, double> Computer4::etpo{};
+
+//queue<string> Computer4::timePoints{};
+//unordered_map<string, double> Computer4::btpo{};
+
+
+Computer4::Computer4() : Computer{} {
+    if (dCount == 0) init();
+    dCount += 1;
+}
+
+Computer4::~Computer4() {
+    dCount -= 1;
+    if (dCount == 0)
+        updateTpoFile();
+}
+
+string Computer4::rep() const {
+    return "computer4";
+}
+
+int Computer4::type() const {
+    return PLAYER_C4;
+}
+
+int Computer4::operations() const {
+    return 4000000;
+}
+
+double Computer4::eOutcome(
+    Board * board, int round
+) {
+    string boardInStr{board->ToString(round)};
+    if (etpo.find(boardInStr) != etpo.end()) {
+        return etpo[boardInStr];
+    }
+    /*
+    if (btpo.find(boardInStr) == btpo.end()) {
+        timePoints.push(boardInStr);
+        btpo[boardInStr] = board->Outcome(round, 0);
+        if (timePoints.size() > 10000000) {
+            btpo.erase(timePoints.front());
+            timePoints.pop();
+        }
+    }
+    return btpo[boardInStr];
+    */
+    return board->Outcome(round, 0);
+}
+
+void Computer4::storeInfo(
+    Board * board, int round, double expectedPayoff, const vector<pair<double, Move *>> & movesEPayoff
+) {
+    for (const pair<double, Move *> & move : movesEPayoff) {
+        move.second->Proc();
+        move.second->Set(board);
+        string boardInStr = board->ToString(round+1);
+        etpo[boardInStr] = expectedPayoff;
+        move.second->Undo();
+        move.second->RSet(board);
+    }
+    string boardInStr = board->ToString(round);
+    etpo[boardInStr] = expectedPayoff;
+    #ifdef DEBUG
+    cout << "etop size: " << etpo.size() << endl;
+    #endif
+}
+
+Move * Computer4::selectMove(
+    const vector<pair<double, Move *>> & movesEPayoff
+) const {
+    return rSelectMove(movesEPayoff, 0.6);
+}
+
+
+void Computer4::init() {
+    initTpoFile();
+    updateTpo();
+}
+
+void Computer4::initTpoFile() {
+    // create the directory if it does not exist
+    const string dir(dataDir());
+    struct stat sb;
+    if (stat(dir.c_str(), &sb) != 0) {
+        if(mkdir(dir.c_str(), 0777) == -1) {
+            #ifdef DEBUG
+            cerr << "Error: initTpoFile()" << endl;
+            #endif
+        }
+    }
+
+    // create the file if it does not exist
+    fstream fs;
+    fs.open(fileDir(), std::ios::out | std::ios::app);
+    fs.close();
+}
+
+void Computer4::updateTpo() {
+    fstream fs;
+    fs.open(fileDir(), std::ios::in);
+    while(fs.peek() != EOF) {
+        char timePoint[33];
+        fs.get(timePoint, 33, EOF);
+        string tp{timePoint};
+        double outcome;
+        fs >> outcome;
+        etpo[tp] = outcome;
+        fs.get();
+    }
+    fs.close();
+}
+
+void Computer4::updateTpoFile() {
+    ofstream fs;
+    fs.open(fileDir(), std::ios::out);
+    fs.close();
+    fs.open(fileDir(), ios::app);
+    #ifdef DEBUG
+    cout << "Updating tpo file...\n" << endl;
+    #endif
+    for (const pair<const string, double> & tpo : etpo) {
+        fs << tpo.first << ' ' << tpo.second << '\n';
+    }
+    etpo.clear();
+    /*
+    timePoints = queue<string>{};
+    btpo.clear();
+    */
+}
+
+string Computer4::fileDir() {
+    return dataDir() + pathSep() + fileName();
+}
+
+string Computer4::dataDir() {
+    return "data";
+}
+
+string Computer4::fileName() {
+    return "c4.tpo";
 }
 
 
@@ -271,6 +472,8 @@ unique_ptr<Player> makePlayer(int type) {
         return make_unique<Computer2>();
     case 4:
         return make_unique<Computer3>();
+    case 5:
+        return make_unique<Computer4>();
     
     default:
         return nullptr;

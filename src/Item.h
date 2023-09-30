@@ -24,8 +24,10 @@ class Item {
 
     /**   Functions   **/  
     virtual bool valid() const                              = 0;
-    virtual double val() const                              = 0;    
-    virtual double val(const std::pair<int,int> & at) const = 0;  
+    virtual double val() const                              = 0;
+    virtual double weight() const                           = 0;
+    virtual char toChar() const                             = 0;
+
 
     public:
     Item();
@@ -34,11 +36,14 @@ class Item {
     // gets the value of the Piece
     double Val() const;
 
-    // gets the value of the Piece at the pos 
-    double Val(const std::pair<int,int> & at) const;
+    // gets the weight of the Piece
+    double Weight() const;
 
-    // determine if an item is valid
+    // determines if an item is valid
     bool Valid() const;
+
+    // returns a character storing the information of the item
+    char ToChar() const;
 
 };
 
@@ -73,6 +78,9 @@ class XQPiece : public Item {
     int colour;
     std::pair<int,int> pos;
 
+    static bool bonusInited;
+    static double bonus[9][10][7];    // position bonus
+
     /**   Functions   **/
 
     void setType(int type);
@@ -81,11 +89,17 @@ class XQPiece : public Item {
     // returns the value of the current piece
     double val() const override;
 
-    // returns the value of the current piece at position [at]
-    double val(const std::pair<int,int> & at) const override;
+    // returns the weight of the piece
+    double weight() const override;
 
     // determines if the piece is valid (i.e. it is not captured)
     bool valid() const override;
+
+    // return a character that stores the information of the piece
+    char toChar() const override;
+
+    // initialize the bouns value
+    void initBonus();
 
     public:
     XQPiece();

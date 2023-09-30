@@ -5,6 +5,11 @@
 #include <vector>
 #include <queue>
 
+//****     Path     *****//
+
+std::string pathSep();
+
+
 //****     String Operations     *****//
 
 // managing cases

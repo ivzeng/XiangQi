@@ -36,6 +36,7 @@ class Board {
     )                                                               = 0;
     virtual void info(std::string & m, const Msg & msg)             = 0;
     virtual int pMoveIdx(int round) const                           = 0;
+    virtual std::string toString(int round) const                   = 0;
     virtual double outcome0(int round)                              = 0;
     virtual double outcome1(int round)                              = 0;
 
@@ -63,6 +64,9 @@ class Board {
 
     // gets the index of the player to move
     int PMoveIdx(int round) const;
+
+    // returns a string storing the information of the board
+    std::string ToString(int round) const;
 
     // computes the outcome of a player at current stage
     double Outcome(int round, int mode = 0);
@@ -98,6 +102,8 @@ class XQBoard : public Board {
     int height() const;
 
     int pMoveIdx(int round) const override;
+
+    std::string toString(int round) const override;
 
     double outcome0(int round) override;
 

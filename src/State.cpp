@@ -14,11 +14,11 @@ State::~State() {}
 
 void State::init() {
     curState = 1;
-    cis = vector<map<string, int>>(5);
+    cis = vector<map<string, int>>(6);
     cis[STATE_End] = {};
     cis[STATE_Main] = {
         {"end", CMD_End}, {"showb", CMD_ShowB}, {"set", CMD_ToS},
-        {"play", CMD_ToPS}, {"resetp", CMD_ResetP}
+        {"play", CMD_ToPS}, {"train", CMD_Tr} , {"resetp", CMD_ResetP}
     };
     cis[STATE_Setting] = {
         {"back", CMD_ToMain}, {"setl", CMD_SetL}
@@ -29,6 +29,9 @@ void State::init() {
     cis[STATE_Game] = {
         {"end", CMD_ToMain}, {"hist", CMD_ShowH},
         {"moves", CMD_ShowM}, {"undo", CMD_Undo}
+    };
+    cis[STATE_Training] = {
+        {"back", CMD_ToMain}
     };
     ucis = {
         {"showc", CMD_ShowC}

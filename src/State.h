@@ -12,10 +12,7 @@
 #define STATE_Setting   2
 #define STATE_PSetting  3
 #define STATE_Game      4
-#define STATE_Setting_1 5
-#define STATE_Setting_2 6
-#define STATE_Setting_3 7
-
+#define STATE_Training  5
 
 /************      State Classes      *************
  *  Classes that manages states and commands

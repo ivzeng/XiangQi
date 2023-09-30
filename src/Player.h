@@ -4,6 +4,9 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <string>
+#include <unordered_map>
+#include <map>
 
 
 /************      Player Classes      *************
@@ -22,6 +25,12 @@ class Item;
 class Move;
 class IO;
 
+#define PLAYER_HU    0
+#define PLAYER_C0   1
+#define PLAYER_C1   2
+#define PLAYER_C2   3
+#define PLAYER_C3   4
+#define PLAYER_C4   5
 
 
 ///****     Player Superclass     ****///
@@ -32,7 +41,9 @@ class Player {
 
     /** functions **/
 
-    virtual std::string rep() = 0; 
+    virtual std::string rep() const = 0;
+
+    virtual int type() const = 0;
 
     // makes a move based on cmd
     virtual Move * decide(
@@ -50,7 +61,7 @@ class Player {
     // returns the immediate outcome of the board at the selected round
     virtual double eOutcome(
         Board * board, int round
-    ) const;
+    );
 
     // returns the overall outcome
     double eOutcome(
@@ -63,24 +74,30 @@ class Player {
     double dfsMovesAnalysis(
         Board * board, int round, int depth,
         std::vector<std::pair<double, Move *>> & movesEPayoff
-    ) const;
+    );
 
     // analyze moves
-    virtual void analyzeMoves(
+    virtual double analyzeMoves(
         Board * board, int round,
         std::vector<std::pair<double, Move *>> & movesEPayoff
-    ) const;
+    );
 
-    // select a move (only called when there are more than one option)
+    // store informations
+    virtual void storeInfo(
+        Board * board, int round, double expectedPayoff,
+        const std::vector<std::pair<double, Move *>> & movesEPayoff
+    );
+
+    // select a move
     virtual Move * selectMove(
         const std::vector<std::pair<double, Move *>> & movesEPayoff
     ) const;
 
-    // decide a move (default)
+    // decide a move
     Move * decideMove(
         Board * board, int round,
         const std::vector<std::unique_ptr<Move>> & moves
-    ) const;
+    );
 
 
     // returns the depth of the DFS
@@ -93,7 +110,9 @@ class Player {
     virtual ~Player() = 0;
 
     // returns the name of the player
-    std::string Rep();
+    std::string Rep() const;
+
+    int Type() const;
 
     // decides or handles a move
     Move * Decide(
@@ -109,7 +128,8 @@ class Player {
 class Human : public Player {
     /**   Functions   **/
     
-    std::string rep() override;
+    std::string rep() const override;
+    int type() const override;
     Move * decide(
         Board * board, int round,
         const std::string & cmd, 
@@ -134,6 +154,12 @@ class Computer : public Player {
         std::vector<std::unique_ptr<Move>> & moves
     ) override;
 
+    // randomly select a move based on prob on a sorted list of moves
+    Move * rSelectMove(
+        const std::vector<std::pair<double, Move *>> & movesEPayoff,
+        float prob = 0.7, float range = 0.5
+    ) const;
+
     public:
     Computer();
     virtual ~Computer() = 0;
@@ -145,7 +171,8 @@ class Computer : public Player {
 class Computer0 : public Computer {
 
     /**   Functions   **/
-    std::string rep() override;
+    std::string rep() const override;
+    int type() const override;
 
     public:
     Computer0();
@@ -156,7 +183,8 @@ class Computer0 : public Computer {
 
 class Computer1 : public Computer {
     /**   Functions   **/
-    std::string rep() override;
+    std::string rep() const override;
+    int type() const override;
     int operations() const override;
 
     public:
@@ -168,9 +196,10 @@ class Computer1 : public Computer {
 
 class Computer2: public Computer {
     /**   Functions   **/
-    std::string rep() override;
+    std::string rep() const override;
+    int type() const override;
     int operations() const override;
-    double eOutcome(Board * board, int round) const override;
+    double eOutcome(Board * board, int round) override;
     public:
     Computer2();
     ~Computer2() override;
@@ -180,12 +209,56 @@ class Computer2: public Computer {
 
 class Computer3: public Computer {
     /**   Functions   **/
-    std::string rep() override;
+    std::string rep() const override;
+    int type() const override;
     int operations() const override;
-    double eOutcome(Board * board, int round) const override;
+    double eOutcome(Board * board, int round) override;
+    Move * selectMove(
+        const std::vector<std::pair<double, Move *>> & movesEPayoff
+    ) const override;
     public:
     Computer3();
     ~Computer3();
+};
+
+
+///****     Computer4 Subclass     ****///
+
+class Computer4: public Computer {
+    /**    Fields    **/
+
+    // time points and expected outcomes
+    static int dCount;
+    static std::map<std::string, double> etpo;
+    // time points and board outcomes
+    //static std::queue<std::string> timePoints;
+    //static std::unordered_map<std::string, double> btpo;
+
+    /**   Functions   **/
+    std::string rep() const override;
+    int type() const override;
+    int operations() const override;
+    double eOutcome(Board * board, int round) override;
+    void storeInfo(
+        Board * board, int round, double expectedPayoff,
+        const std::vector<std::pair<double, Move *>> & movesEPayoff
+    ) override;
+    Move * selectMove(
+        const std::vector<std::pair<double, Move *>> & movesEPayoff
+    ) const override;
+
+    // file management
+    void init();
+    std::string fileDir();
+    std::string dataDir();
+    std::string fileName();
+    void initTpoFile();
+    void updateTpo();
+    void updateTpoFile();
+
+    public:
+    Computer4();
+    ~Computer4();
 };
 
 // constructs play class based in type

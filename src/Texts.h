@@ -8,9 +8,10 @@
 #define LANGUAGE_CN 0
 #define LANGUAGE_EN 1
 
-#define MTYPE_State 0
-#define MTYPE_Proc  1
-#define MTYPE_Board 2
+#define MTYPE_State     0
+#define MTYPE_Proc      1
+#define MTYPE_Board     2
+#define MTYPE_Player    3
 
 
 /*************      Message/Text Classes      *************
